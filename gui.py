@@ -10,7 +10,7 @@ from pymol import cmd
 from pymol.Qt import QtWidgets, QtCore
 from pymol.Qt.utils import loadUi
 
-from .io import docked, load_cluster
+from .io import docked, load_dock4, load_chimerax
 
 # initial headers
 headers = ['Cluster', 'ClusterRank', 'deltaG']
@@ -28,6 +28,17 @@ def run_gui():
     widget = loadUi(uifile, dialog)
 
 
+    ##  ERROR MESSAGE  ------------------------------------------------
+    def error_msg(text, informative_text=None):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Critical)
+        msg.setWindowTitle("PyViewDock")
+        msg.setText(text)
+        if informative_text:
+            msg.setInformativeText(informative_text)
+        msg.exec_()
+
+
     ##  MENUBAR  ------------------------------------------------------
 
     show_column = widget.menuColumns.addMenu('Show')
@@ -38,12 +49,28 @@ def run_gui():
 
     def browse_open():
         """Callback for the 'Open' button"""
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(parent=dialog,
-                                                            caption='Open file containing docked structures',
-                                                            directory=os.getcwd(),
-                                                            filter='PDB File (*.pdb);; All Files(*)')
-        if filename:
-            load_cluster(filename)
+        supported_formats = {'PDB Dock >4 (*.pdb)': load_dock4,
+                             'ChimeraX (*.chimerax)': load_chimerax,
+                             'All Files(*)': None}
+        default_suffix_format = {'pdb': 'PDB Dock >4 (*.pdb)',
+                                 'chimerax': 'ChimeraX (*.chimerax)'}
+        # launch open file dialog from system
+        filename, format_selected = QtWidgets.QFileDialog.getOpenFileName(parent=dialog,
+                                                                          caption='Open file containing docked structures',
+                                                                          directory=os.getcwd(),
+                                                                          filter=";;".join(supported_formats.keys()))
+        if not filename: return
+        # guess format from suffix
+        if format_selected == 'All Files(*)':
+            suffix = os.path.basename(filename).rpartition('.')[-1].lower()
+            if suffix in default_suffix_format:
+                format_selected = default_suffix_format[suffix]
+            else:
+                # error message
+                error_msg(f"Unsupported format file:  .{suffix}")
+                return
+        # load file with corresponding format' function
+        supported_formats[format_selected](filename)
         draw_table()
 
 

@@ -23,18 +23,18 @@
 
 """
 
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 from pymol import cmd, plugins
 
-from .io import load_cluster, load_ext
+from .io import load_dock4, load_ext
 from .gui import run_gui
 
 
 ##  PYMOL FUNCTIONS  ##################################################
 
-cmd.extend("load_cluster", load_cluster)
+cmd.extend("load_cluster", load_dock4)
 cmd.load = load_ext
 cmd.extend("load", cmd.load)
 

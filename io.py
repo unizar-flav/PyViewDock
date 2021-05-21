@@ -82,7 +82,7 @@ class Docked():
         del self.entries[ndx]
         del self.pdb[ndx]
 
-    def load_cluster(self, cluster, object, mode):
+    def load_dock4(self, cluster, object, mode):
         """
             Load a SwissDock's cluster of ligands from string list in PDB >Dock4 format
 
@@ -201,7 +201,7 @@ docked = Docked()
 
 ##  FUNCTIONS  ########################################################
 
-def load_cluster(filename, object='', mode=0):
+def load_dock4(filename, object='', mode=0):
     """
         Load a SwissDock's cluster of ligands as an object
         with multiple states and read the docking information
@@ -228,7 +228,7 @@ def load_cluster(filename, object='', mode=0):
     with open(filename, "rt") as f:
         cluster = f.readlines()
 
-    docked.load_cluster(cluster, object, mode)
+    docked.load_dock4(cluster, object, mode)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
 
@@ -264,7 +264,7 @@ def load_chimerax(filename):
             print(" PyViewDock: Failed reading 'chimerax' file. Bad server response. File too old?")
         else:
             cmd.read_pdbstr(target_pdb, 'target')
-            docked.load_cluster(cluster_pdb, 'cluster', 0)
+            docked.load_dock4(cluster_pdb, 'cluster', 0)
     else:
         print(" PyViewDock: Failed reading 'chimerax' file. Inconsistent format.")
 
