@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ChimeraPuppet type="std_webdata">
+<web_files>
+    <file name="target.pdb" format="text" loc="http://www.swissdock.ch/files/tmp/swissdockd_nIlAVu_HPGQIAIO293Y0KXFMF9V/target.pdb" />
+</web_files>
+<commands>
+   <py_cmd>
+import urllib
+import tempfile
+from chimera import runCommand
+tmpDirectory = tempfile.mkdtemp()
+urllib.urlretrieve ("http://www.swissdock.ch/files/tmp/swissdockd_nIlAVu_HPGQIAIO293Y0KXFMF9V/clusters.dock4.pdb", "%s/clusters.dock4.pdb"%tmpDirectory)
+runCommand("viewdock %s/clusters.dock4.pdb \"Dock 4, 5 or 6\""%tmpDirectory)
+</py_cmd>
+  <mid_cmd>color byatom #0</mid_cmd>
+   <mid_cmd>ribbon #0</mid_cmd>
+   <mid_cmd>repr stick :LIG</mid_cmd>
+   <mid_cmd>~disp element.H</mid_cmd>
+   <mid_cmd>hbonds intramodel false lineWidth 5 color green</mid_cmd>
+</commands>
+</ChimeraPuppet>
