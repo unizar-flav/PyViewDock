@@ -8,6 +8,7 @@
 import os
 import re
 from copy import deepcopy
+import xml.etree.ElementTree as ET
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
@@ -249,24 +250,37 @@ def load_chimerax(filename):
 
     print(f" PyViewDock: Loading \"{filename}\"")
 
-    with open(filename, "rt") as f:
-        chimerax_file = f.read()
-
-    pdb_url = re.findall('"(http:[^"]+pdb)"', chimerax_file)
-
-    if len(pdb_url) == 2:
-        target_url, cluster_url = pdb_url
+    # read ChimeraX file as XML
+    try:
+        chimerax_xml = ET.parse(filename).getroot()
+        target_url = chimerax_xml.find('web_files').find('file').get('loc')
+        commands = chimerax_xml.find('commands').find('py_cmd').text
+        cluster_url = re.findall('"(http[^"]+pdb)"', commands)[0]
+        target_filename = target_url.split('/')[-1]
+        cluster_filename = cluster_url.split('/')[-1]
+        if not all([target_url, cluster_url, target_filename, cluster_filename]): raise ValueError
+    except FileNotFoundError:
+        print(" PyViewDock: Failed reading 'chimerax' file. File not found.")
+    except:
+        print(" PyViewDock: Failed reading 'chimerax' file. Invalid format.")
+    else:
+        # fetch files from server
         try:
             target_pdb = urlopen(target_url).read().decode('utf-8')
             cluster_pdb = urlopen(cluster_url).readlines()
             cluster_pdb = [i.decode('utf-8') for i in cluster_pdb]
-        except HTTPError:
-            print(" PyViewDock: Failed reading 'chimerax' file. Bad server response. File too old?")
-        else:
             cmd.read_pdbstr(target_pdb, 'target')
             docked.load_dock4(cluster_pdb, 'cluster', 0)
-    else:
-        print(" PyViewDock: Failed reading 'chimerax' file. Inconsistent format.")
+        except HTTPError:
+            print(" PyViewDock: Failed reading 'chimerax' file. Bad server response. Too old?")
+            # find local files that match names in .chimerax directory
+            chimerax_directory = os.path.dirname(os.path.realpath(filename))
+            target_file = os.path.join(chimerax_directory, target_filename)
+            cluster_file = os.path.join(chimerax_directory, cluster_filename)
+            if os.path.isfile(target_file) and os.path.isfile(target_file):
+                print(f" PyViewDock: Files found locally ({target_filename}, {cluster_filename}). Loading...")
+                importing.load(target_file)
+                load_dock4(cluster_file)
 
 
 def load_ext(filename, object='', state=0, format='', finish=1,
