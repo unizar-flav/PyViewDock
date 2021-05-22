@@ -31,6 +31,7 @@ class Docked():
                 'object' : str
                 'state' : int
         pdb : list
+        headers : list
 
         Properties
         ----------
@@ -44,6 +45,8 @@ class Docked():
     def __init__(self):
         self.entries = []       # list of dict for every docked entry
         self.pdb = []
+        # default table headers
+        self.headers = ['Cluster', 'ClusterRank', 'deltaG']
 
     @property
     def n_entries(self) -> int:

@@ -12,13 +12,13 @@ from pymol.Qt.utils import loadUi
 
 from .io import docked, load_dock4, load_chimerax
 
-# initial headers
-headers = ['Cluster', 'ClusterRank', 'deltaG']
 
 def run_gui():
     """Main PyViewDock dialog window"""
 
-    global docked, headers
+    global docked
+
+    headers = docked.headers
 
     # create a new Window
     dialog = QtWidgets.QDialog()
