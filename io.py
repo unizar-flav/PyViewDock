@@ -30,7 +30,6 @@ class Docked():
             'internal' : dict
                 'object' : str
                 'state' : int
-        pdb : list
         headers : list
 
         Properties
@@ -44,7 +43,6 @@ class Docked():
 
     def __init__(self):
         self.entries = []       # list of dict for every docked entry
-        self.pdb = []
         # default table headers
         self.headers = ['Cluster', 'ClusterRank', 'deltaG']
 
@@ -84,7 +82,6 @@ class Docked():
                 if e['internal']['object'] == entry['internal']['object']:
                     e['internal']['state'] = e['internal']['state'] - int(e['internal']['state'] > entry['internal']['state'])
         del self.entries[ndx]
-        del self.pdb[ndx]
 
     def load_dock4(self, cluster, object, mode):
         """
@@ -108,6 +105,7 @@ class Docked():
 
         # read all structures remarks/coordinates
         i = 0
+        pdb = []
         remark_re = re.compile(r'(?i)^REMARK\b\s+(\w+)\s*:\s*(-?\d+\.?\d*)')
         while i < len(cluster):
 
@@ -132,7 +130,7 @@ class Docked():
                 pdb_molecule = "\n".join(cluster[i_0:i]) + '\nENDMDL\n'
 
                 # append to main attribute at the end of molecule
-                self.pdb.append(pdb_molecule)
+                pdb.append(pdb_molecule)
                 self.entries.append({'remarks':remarks, 'internal':deepcopy(self.internal_empty)})
 
             else:
@@ -153,32 +151,32 @@ class Docked():
 
         # load only first of every cluster (ClusterRank == 0)
         if mode == '1':
-            entries, pdb = [], []
+            entries_tmp, pdb_tmp = [], []
             n_state = 0
-            for e,p in zip(self.entries, self.pdb):
+            for e,p in zip(self.entries, pdb):
                 if e['remarks']['ClusterRank'] == 0:
-                    pdb.append(p)
-                    entries.append(e)
+                    pdb_tmp.append(p)
+                    entries_tmp.append(e)
                     n_state += 1
-                    entries[-1]['internal']['state'] = n_state
+                    entries_tmp[-1]['internal']['state'] = n_state
 
-            self.entries, self.pdb = deepcopy(entries), deepcopy(pdb)
-            cmd.read_pdbstr("".join(self.pdb), object)
+            self.entries, pdb = deepcopy(entries_tmp), deepcopy(pdb_tmp)
+            cmd.read_pdbstr("".join(pdb), object)
 
         # load all in different objects by Cluster
         elif mode == '2':
-            pdb = dict()
-            for e,p in zip(self.entries, self.pdb):
+            pdb_tmp = dict()
+            for e,p in zip(self.entries, pdb):
                 object_new = object + '-' + str(e['remarks']['Cluster'])
-                pdb.setdefault(object_new, []).append(p)
+                pdb_tmp.setdefault(object_new, []).append(p)
                 e['internal']['object'] = object_new
-                e['internal']['state'] = len(pdb[object_new]) + 1
-            for object_new, p in pdb.items():
+                e['internal']['state'] = len(pdb_tmp[object_new]) + 1
+            for object_new, p in pdb_tmp.items():
                 cmd.read_pdbstr("".join(p), object_new)
 
         # load all in one object
         else:
-            cmd.read_pdbstr("".join(self.pdb), object)
+            cmd.read_pdbstr("".join(pdb), object)
 
     def sort(self, remark, reverse=False):
         """
