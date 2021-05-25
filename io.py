@@ -196,9 +196,12 @@ class Docked():
         self.entries = sorted(self.entries, key=lambda k: k['remarks'][remark], reverse=reverse)
 
 
-##  GLOBAL VARIABLES  #################################################
-
-docked = Docked()
+def get_docked() -> 'Docked':
+    """Get 'Docked' class from current session or initialize a new one"""
+    from pymol import session
+    if not 'PyViewDock' in vars(session):
+        session.PyViewDock = Docked()
+    return session.PyViewDock
 
 
 ##  FUNCTIONS  ########################################################
@@ -221,7 +224,7 @@ def load_dock4(filename, object='', mode=0):
             2 - all molecules to multiple objects according to clusters
     """
 
-    global docked
+    docked = get_docked()
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
@@ -247,7 +250,7 @@ def load_chimerax(filename):
     # UCSF Chimera Web Data Format
     # www.cgl.ucsf.edu/chimera/docs/ContributedSoftware/webdata/chimerax.html
 
-    global docked
+    docked = get_docked()
 
     print(f" PyViewDock: Loading \"{filename}\"")
 

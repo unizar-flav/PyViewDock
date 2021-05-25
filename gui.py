@@ -10,15 +10,13 @@ from pymol import cmd
 from pymol.Qt import QtWidgets, QtCore
 from pymol.Qt.utils import loadUi
 
-from .io import docked, load_dock4, load_chimerax
+from .io import get_docked, load_dock4, load_chimerax
 
 
 def run_gui():
     """Main PyViewDock dialog window"""
 
-    global docked
-
-    headers = docked.headers
+    docked = get_docked()
 
     # create a new Window
     dialog = QtWidgets.QDialog()
@@ -75,6 +73,8 @@ def run_gui():
 
 
     ##  TABLE  --------------------------------------------------------
+
+    headers = docked.headers
 
     def draw_table(headers=headers):
         """Fill the whole table with data from docked entries"""
