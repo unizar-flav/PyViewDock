@@ -11,11 +11,9 @@
   - Load a .chimerax file:
         load  filename
 
-  - Load cluster of docking ligands in PDB format:
-        load_cluster  filename [, object [, mode ]]
+  - Load cluster of docking ligands in Dock 4+ PDB format:
+        load_dock4  filename [, object [, mode ]]
 
-
-  Remark: Currently tested only for Swiss-Dock
 
 
   by Sergio Boneta Martinez
@@ -23,7 +21,7 @@
 
 """
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 
 from pymol import cmd, plugins
@@ -34,7 +32,7 @@ from .gui import run_gui
 
 ##  PYMOL FUNCTIONS  ##################################################
 
-cmd.extend("load_cluster", load_dock4)
+cmd.extend("load_dock4", load_dock4)
 cmd.load = load_ext
 cmd.extend("load", cmd.load)
 
