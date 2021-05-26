@@ -41,9 +41,16 @@ def run_gui():
 
     show_column = widget.menuColumns.addMenu('Show')
     hide_column = widget.menuColumns.addMenu('Hide')
+    hide_all = widget.menuColumns.addAction('buttonHideAll')
+    hide_all.setText("Hide All")
 
 
     ##  I/O FILES  ----------------------------------------------------
+
+    def clear_all():
+        """Clear all the docked entries"""
+        docked.clear()
+        draw_table()
 
     def browse_open():
         """Callback for the 'Open' button"""
@@ -138,6 +145,11 @@ def run_gui():
         headers.remove(header)
         draw_table()
 
+    def hide_header_all():
+        """Remove all column headers"""
+        headers.clear()
+        draw_table()
+
     def display_selected():
         """Display entries corresponding to selected rows"""
         #TODO: multiple selection
@@ -156,6 +168,8 @@ def run_gui():
     ##  CALLBACKS  ----------------------------------------------------
 
     widget.buttonOpen.triggered.connect(browse_open)
+    widget.buttonClearAll.triggered.connect(clear_all)
+    hide_all.triggered.connect(hide_header_all)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
 
     dialog.show()

@@ -42,6 +42,7 @@
        <string>File</string>
       </property>
       <addaction name="buttonOpen"/>
+      <addaction name="buttonClearAll"/>
      </widget>
      <widget class="QMenu" name="menuColumns">
       <property name="title">
@@ -92,6 +93,11 @@
    </property>
    <property name="toolTip">
     <string>Open</string>
+   </property>
+  </action>
+  <action name="buttonClearAll">
+   <property name="text">
+    <string>Clear All</string>
    </property>
   </action>
  </widget>

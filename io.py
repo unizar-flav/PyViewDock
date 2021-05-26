@@ -66,6 +66,12 @@ class Docked():
             # get all readed REMARKs
             return {j for i in self.entries for j in i['remarks'].keys()}
 
+    def clear(self):
+        """Remove all the objects related to the class and clear it's entries"""
+        for obj in self.objects:
+            cmd.delete(obj)
+        self.__init__()
+
     def remove_ndx(self, ndx, update=True):
         """
             Remove a stored entry / pdb coordinates based on index
