@@ -231,9 +231,7 @@ class Docked():
                 self.entries.append({'remarks':deepcopy(remarks), 'internal':deepcopy(self.internal_empty)})
 
         # load receptor
-        with open(receptor_file) as f:
-            receptor = f.readlines()
-            cmd.read_pdbstr("".join(receptor), rec_obj)
+        importing.load(receptor_file, rec_obj)
 
         # load ligands
         loaded = []
