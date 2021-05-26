@@ -97,27 +97,17 @@ def run_gui():
         widget.tableDocked.setRowCount(docked.n_entries)
         # fill table
         widget.tableDocked.setHorizontalHeaderLabels([""]*2+headers)
-        for row in range(docked.n_entries):
+        for row, entry in enumerate(docked.entries):
             # hidden internal columns ('object', 'state')
-            widget.tableDocked.setItem(row, 0,
-                QtWidgets.QTableWidgetItem(str(docked.entries[row]['internal']['object'])))
-            widget.tableDocked.setItem(row, 1,
-                QtWidgets.QTableWidgetItem(str(docked.entries[row]['internal']['state'])))
+            widget.tableDocked.setItem(row, 0, QtWidgets.QTableWidgetItem(str(entry['internal']['object'])))
+            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['internal']['state'])))
+            # assign to table cell
             for column, remark in enumerate(headers):
-                # convert to string
-                value = docked.entries[row]['remarks'][remark]
-                if isinstance(value, int):
-                    # surrounded by spaces for proper sorting
-                    value_fmt = f"{value:>4}"+" "*2
-                elif isinstance(value, float):
-                    value_fmt = f"{value}"
-                else:
-                    value_fmt = value
-                # assign to table cell
-                widget.tableDocked.setItem(
-                    row, column+2, QtWidgets.QTableWidgetItem(value_fmt))
-                widget.tableDocked.item(
-                    row, column+2).setTextAlignment(QtCore.Qt.AlignCenter)
+                value = entry['remarks'][remark]
+                item = QtWidgets.QTableWidgetItem()
+                item.setData(QtCore.Qt.EditRole, value)
+                widget.tableDocked.setItem(row, column+2, item)
+                widget.tableDocked.item(row, column+2).setTextAlignment(QtCore.Qt.AlignCenter)
         widget.tableDocked.resizeColumnsToContents()
         widget.tableDocked.resizeRowsToContents()
         widget.tableDocked.hideColumn(0)
