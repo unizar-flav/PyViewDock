@@ -7,6 +7,7 @@
 
 import os
 import re
+import glob
 from copy import deepcopy
 import xml.etree.ElementTree as ET
 from urllib.request import urlopen
@@ -44,7 +45,10 @@ class Docked():
     def __init__(self):
         self.entries = []       # list of dict for every docked entry
         # default table headers
-        self.headers = ['Cluster', 'ClusterRank', 'deltaG']
+        self.headers = [
+                        'Cluster', 'ClusterRank', 'deltaG',     # Swiss-Dock
+                        'RANK', 'Total'                         # pyDock
+                        ]
 
     @property
     def n_entries(self) -> int:
@@ -178,6 +182,79 @@ class Docked():
         else:
             cmd.read_pdbstr("".join(pdb), object)
 
+    def load_pydock(self, filename, object, max_n):
+        """
+            Load a PyDock's group of structures as an object
+            with multiple states and read the docking information
+
+            Parameters
+            ----------
+            filename : str
+                energy resume file (.ene / .eneRST)
+            object : str
+                basename to include the new objects (_rec / _lig)
+            max_n : int
+                maximum number of structures to load
+        """
+
+        self.__init__()
+
+        rec_obj = object+"_rec"
+        lig_obj = object+"_lig"
+
+        basename = os.path.basename(filename).split('.')[0]
+        directory = os.path.dirname(os.path.realpath(filename))
+
+        # get list of matching pdb files
+        pdb_files = glob.glob(os.path.join(directory, "*.pdb"))
+
+        # find receptor and ligand files
+        try:
+            receptor_file = [i for i in pdb_files if "_rec.pdb" in i][0]
+            ligand_file = [i for i in pdb_files if "_lig.pdb" in i][0]
+        except: 
+            print(" PyViewDock: Failed loading pyDock file. Missing '_rec.pdb' or '_lig.pdb'.")
+            return
+
+        # read energy file
+        with open(filename, "rt") as f:
+            energy_file = [line.strip() for line in f.readlines() if line.strip() and not line.startswith("----")]
+            header = energy_file.pop(0).split()
+            for line in energy_file:
+                remarks = { h:(int(v) if h in {'Conf', 'RANK'} else float(v)) for h,v in zip(header, line.split())}
+                self.entries.append({'remarks':deepcopy(remarks), 'internal':deepcopy(self.internal_empty)})
+
+        # load receptor
+        with open(receptor_file) as f:
+            receptor = f.readlines()
+            cmd.read_pdbstr("".join(receptor), rec_obj)
+
+        # load ligands
+        loaded = []
+        not_found_warning = False
+        for n, entry in enumerate(self.entries):
+            if n+1 > max_n: break
+            conf_num = entry['remarks']['Conf']
+            try:
+                conf_file = [i for i in pdb_files if f"_{conf_num}.pdb" in i][0]
+            except IndexError:
+                not_found_warning = True
+                continue
+            else:
+                loaded.append(n)
+                entry['internal']['object'] = lig_obj
+                entry['internal']['state'] = len(loaded)
+                importing.load(conf_file, lig_obj, 0)
+
+        if not_found_warning: print(" PyViewDock: WARNING: Some ligands defined on the energy file could not been found and loaded.")
+
+        # delete entries which pdb has not been found
+        for i in reversed(range(self.n_entries)):
+            if i not in loaded: del self.entries[i]
+        
+        # remove atoms of receptor from ligand
+        cmd.remove(f"{lig_obj} in {rec_obj}") 
+
     def sort(self, remark, reverse=False):
         """
             Sort entries according to values of 'remark'
@@ -287,6 +364,36 @@ def load_chimerax(filename):
                 load_dock4(cluster_file)
 
 
+def load_pydock(filename, object='', max_n=100):
+    """
+        Load a PyDock's group of structures as an object
+        with multiple states and read the docking information
+
+        The energy resume file is read and the corresponding
+        structures are taken from PDB files in the same folder
+        based on the pattern NAME_NUMBER.pdb
+        _rec.pdb and _lig.pdb are also necessary
+
+        Parameters
+        ----------
+        filename : str
+            energy resume file (.ene / .eneRST)
+        object : str, optional
+            basename to include the new objects (_rec / _lig)
+            if absent, taken from filename
+        max_n : int
+            maximum number of structures to load
+    """
+
+    docked = get_docked()
+
+    if not object:
+        object = os.path.basename(filename).split('.')[0]
+
+    docked.load_pydock(filename, object, max_n)
+    print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
+
+
 def load_ext(filename, object='', state=0, format='', finish=1,
              discrete=-1, quiet=1, multiplex=None, zoom=-1, partial=0,
              mimic=1, object_props=None, atom_props=None, *, _self=cmd):
@@ -297,6 +404,8 @@ def load_ext(filename, object='', state=0, format='', finish=1,
         -------
         .chimerax
             XML file with URL of target and ligands cluster
+        .ene / .eneRST
+            energy table with reference numbers of structures from pyDock
     """
 
     if not format:
@@ -307,6 +416,10 @@ def load_ext(filename, object='', state=0, format='', finish=1,
     # Chimera X
     if format.lower() == "chimerax":
         load_chimerax(filename)
+
+    # pyDock
+    elif format.lower() in ("ene", "enerst"):
+        load_pydock(filename, name)
 
     # original load function
     else:

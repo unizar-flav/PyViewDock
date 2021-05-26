@@ -12,6 +12,8 @@ Obviously inspired from the original [Chimera's View-Dock](https://www.cgl.ucsf.
 
 * [Swiss-Dock](http://www.swissdock.ch/) \
     .chimerax / .pdb in Dock 4+ format
+* [pyDock](https://life.bsc.es/pid/pydock/) \
+    .ene / .eneRST and corresponding .pdb
 
 
 ### Requirements
@@ -44,8 +46,16 @@ A table will appear with information for every docking entry. It can be column-s
 
 #### PyMOL command line
 
-  - Load a .chimerax file (drag-and-drop also works): \
-      `load  filename`
+  - Enriched `load` function (also as drag-and-drop):
+      * .chimerax
+      * .ene/.eneRST
 
   - Load cluster of docked ligands in PDB format (Dock 4+): \
       `load_dock4  filename [, object [, mode ]]`
+
+  - Load pyDock's .ene/.eneRST file: \
+      `load_pydock  filename [, object [, max_n ]]`
+
+
+### How to cite
+  > Boneta, S., _PyViewDock_, 2021, https://github.com/unizar-qtc/PyViewDock
