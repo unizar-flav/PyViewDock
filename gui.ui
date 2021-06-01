@@ -45,6 +45,7 @@
        <string>File</string>
       </property>
       <addaction name="buttonOpen"/>
+      <addaction name="buttonExportData"/>
       <addaction name="buttonClearAll"/>
      </widget>
      <widget class="QMenu" name="menuColumns">
@@ -101,6 +102,11 @@
   <action name="buttonClearAll">
    <property name="text">
     <string>Clear All</string>
+   </property>
+  </action>
+  <action name="buttonExportData">
+   <property name="text">
+    <string>Export Data...</string>
    </property>
   </action>
  </widget>

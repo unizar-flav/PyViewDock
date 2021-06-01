@@ -10,7 +10,7 @@ from pymol import cmd
 from pymol.Qt import QtWidgets, QtCore
 from pymol.Qt.utils import loadUi
 
-from .io import get_docked, load_dock4, load_chimerax, load_pydock
+from .io import get_docked, load_dock4, load_chimerax, load_pydock, export_docked_data
 
 
 def run_gui():
@@ -82,6 +82,27 @@ def run_gui():
         # load file with corresponding format' function
         supported_formats[format_selected](filename)
         draw_table()
+
+    def browse_export_data():
+        """Callback for the 'Export Data' button"""
+        supported_formats = {'CSV (*.csv)': 'csv',
+                             'Text (*.txt)': 'txt',
+                             'All Files(*)': None}
+        default_suffix_format = {'csv': 'CSV (*.csv)',
+                                 'txt': 'Text (*.txt)'}
+        # launch open file dialog from system
+        filename, format_selected = QtWidgets.QFileDialog.getSaveFileName(parent=dialog,
+                                                                          caption='Save file containing docked data',
+                                                                          directory=os.getcwd(),
+                                                                          filter=";;".join(supported_formats.keys()))
+        if not filename: return
+        # guess format from suffix
+        # if not in supported_formats, the first suffix is added by Qt
+        if format_selected == 'All Files(*)':
+            suffix = os.path.basename(filename).rpartition('.')[-1].lower()
+            format_selected = default_suffix_format[suffix]
+        # save file with corresponding format' arguments
+        export_docked_data(filename, supported_formats[format_selected])
 
 
     ##  TABLE  --------------------------------------------------------
@@ -162,6 +183,7 @@ def run_gui():
     ##  CALLBACKS  ----------------------------------------------------
 
     widget.buttonOpen.triggered.connect(browse_open)
+    widget.buttonExportData.triggered.connect(browse_export_data)
     widget.buttonClearAll.triggered.connect(clear_all)
     hide_all.triggered.connect(hide_header_all)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)

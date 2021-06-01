@@ -218,7 +218,7 @@ class Docked():
         try:
             receptor_file = [i for i in pdb_files if "_rec.pdb" in i][0]
             ligand_file = [i for i in pdb_files if "_lig.pdb" in i][0]
-        except: 
+        except:
             print(" PyViewDock: Failed loading pyDock file. Missing '_rec.pdb' or '_lig.pdb'.")
             return
 
@@ -255,9 +255,50 @@ class Docked():
         # delete entries which pdb has not been found
         for i in reversed(range(self.n_entries)):
             if i not in loaded: del self.entries[i]
-        
+
         # remove atoms of receptor from ligand
-        cmd.remove(f"{lig_obj} in {rec_obj}") 
+        cmd.remove(f"{lig_obj} in {rec_obj}")
+
+    def export_data(self, filename, format=None):
+        """
+            Save file containing docked data of all entries
+
+            Parameters
+            ----------
+            filename : str
+                data output file
+            format : {'csv', 'txt', None}, optional
+                file format, default is None and guessed from filename's suffix
+                csv : semicolon separated data
+                txt : space separated data, with the header row preceded by '#'
+        """
+
+        if self.n_entries == 0:
+            print(f" PyViewDock: No docked entries found.")
+            return
+
+        # guess format
+        if not format:
+            format = os.path.basename(filename).rpartition('.')[-1].lower()
+        # check supported format
+        format = format.lower()
+        if not format in {'csv', 'txt'}:
+            raise ValueError("Unknown file format")
+
+        # build data
+        remarks = list(self.entries[0]['remarks'].keys())
+        joiner = ";" if format=='csv' else "  "
+        data = [joiner.join(remarks)+"\n"]
+        for entry in self.entries:
+            data_entry = [str(entry['remarks'][r]) for r in remarks]
+            data.append(joiner.join(data_entry)+"\n")
+
+        # write data file
+        with open(filename, 'w', encoding='utf-8') as f:
+            if format=='txt': f.write('#  '+data.pop(0))
+            f.writelines(data)
+
+        print(f" PyViewDock: Data exported to \"{filename}\"")
 
     def sort(self, remark, reverse=False):
         """
@@ -396,6 +437,29 @@ def load_pydock(filename, object='', max_n=100):
 
     docked.load_pydock(filename, object, max_n)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
+
+
+def export_docked_data(filename, format=''):
+    """
+        Save file containing docked data of all entries
+
+        Parameters
+        ----------
+        filename : str
+            data output file
+        format : {'csv', 'txt'}, optional
+            file format, default guessed from filename's suffix with fallback to 'csv'
+            csv : semicolon separated data
+            txt : space separated data, with the header row preceded by '#'
+    """
+
+    docked = get_docked()
+
+    if not format:
+        suffix = os.path.basename(filename).rpartition('.')[-1].lower()
+        format = suffix if suffix in {'csv', 'txt'} else 'csv'
+
+    docked.export_data(filename, format)
 
 
 def load_ext(filename, object='', state=0, format='', finish=1,

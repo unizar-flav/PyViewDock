@@ -18,6 +18,9 @@
   - Load pyDock's .ene/.eneRST file:
         load_pydock  filename [, object [, max_n ]]
 
+  - Export docked entries data to .csv/.txt file:
+        export_docked_data  filename [, format ]
+
 
 
   by Sergio Boneta Martinez
@@ -25,12 +28,12 @@
 
 """
 
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 
 
 from pymol import cmd, plugins
 
-from .io import load_dock4, load_pydock, load_ext
+from .io import load_dock4, load_pydock, load_ext, export_docked_data
 from .gui import run_gui
 
 
@@ -38,6 +41,7 @@ from .gui import run_gui
 
 cmd.extend("load_dock4", load_dock4)
 cmd.extend("load_pydock", load_pydock)
+cmd.extend("export_docked_data", export_docked_data)
 cmd.load = load_ext
 cmd.extend("load", cmd.load)
 

@@ -56,6 +56,9 @@ A table will appear with information for every docking entry. It can be column-s
   - Load pyDock's .ene/.eneRST file: \
       `load_pydock  filename [, object [, max_n ]]`
 
+  - Export docked entries data to .csv/.txt file: \
+      `export_docked_data  filename [, format ]`
+
 
 ### How to cite
   > Boneta, S., _PyViewDock_, 2021, https://github.com/unizar-qtc/PyViewDock
