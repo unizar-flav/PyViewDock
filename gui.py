@@ -92,28 +92,30 @@ def run_gui():
         """Fill the whole table with data from docked entries"""
         widget.tableDocked.clear()
         widget.tableDocked.setSortingEnabled(False)
+        n_internal_columns = 3
         # check if requested headers in remarks
         headers = [i for i in headers if i in docked.remarks]
         # number of rows and columns
-        widget.tableDocked.setColumnCount(len(headers)+2)
+        widget.tableDocked.setColumnCount(len(headers)+n_internal_columns)
         widget.tableDocked.setRowCount(docked.n_entries)
         # fill table
-        widget.tableDocked.setHorizontalHeaderLabels([""]*2+headers)
+        widget.tableDocked.setHorizontalHeaderLabels([""]*n_internal_columns+headers)
         for row, entry in enumerate(docked.entries):
-            # hidden internal columns ('object', 'state')
-            widget.tableDocked.setItem(row, 0, QtWidgets.QTableWidgetItem(str(entry['internal']['object'])))
-            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['internal']['state'])))
+            # hidden internal columns [n_entry, 'object', 'state']
+            widget.tableDocked.setItem(row, 0, QtWidgets.QTableWidgetItem(str(row)))
+            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['internal']['object'])))
+            widget.tableDocked.setItem(row, 2, QtWidgets.QTableWidgetItem(str(entry['internal']['state'])))
             # assign to table cell
             for column, remark in enumerate(headers):
                 value = entry['remarks'][remark]
                 item = QtWidgets.QTableWidgetItem()
                 item.setData(QtCore.Qt.EditRole, value)
-                widget.tableDocked.setItem(row, column+2, item)
-                widget.tableDocked.item(row, column+2).setTextAlignment(QtCore.Qt.AlignCenter)
+                widget.tableDocked.setItem(row, column+n_internal_columns, item)
+                widget.tableDocked.item(row, column+n_internal_columns).setTextAlignment(QtCore.Qt.AlignCenter)
         widget.tableDocked.resizeColumnsToContents()
         widget.tableDocked.resizeRowsToContents()
-        widget.tableDocked.hideColumn(0)
-        widget.tableDocked.hideColumn(1)
+        for i in range(n_internal_columns):
+            widget.tableDocked.hideColumn(i)
         # update columns menubar
         show_column.clear()
         hide_column.clear()
@@ -148,8 +150,8 @@ def run_gui():
         selected_row = widget.tableDocked.selectedItems()
         if selected_row:
             row_n = selected_row[0].row()
-            object = widget.tableDocked.item(row_n, 0).text()
-            state = widget.tableDocked.item(row_n, 1).text()
+            object = widget.tableDocked.item(row_n, 1).text()
+            state = widget.tableDocked.item(row_n, 2).text()
             cmd.set('state', state)
             cmd.disable(" ".join(docked.objects))
             cmd.enable(object)
