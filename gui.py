@@ -25,6 +25,8 @@ def run_gui():
     uifile = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'gui.ui')
     widget = loadUi(uifile, dialog)
 
+    # hide question mark and add minimize button
+    widget.setWindowFlags(widget.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
 
     ##  ERROR MESSAGE  ------------------------------------------------
     def error_msg(text, informative_text=None):
