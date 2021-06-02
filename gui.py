@@ -97,10 +97,10 @@ def run_gui():
                                                                           filter=";;".join(supported_formats.keys()))
         if not filename: return
         # guess format from suffix
-        # if not in supported_formats, the first suffix is added by Qt
         if format_selected == 'All Files(*)':
             suffix = os.path.basename(filename).rpartition('.')[-1].lower()
-            format_selected = default_suffix_format[suffix]
+            # if not in supported_formats, fallback to csv
+            format_selected = default_suffix_format.get(suffix, default_suffix_format['csv'])
         # save file with corresponding format' arguments
         export_docked_data(filename, supported_formats[format_selected])
 

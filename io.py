@@ -298,7 +298,7 @@ class Docked():
             if format=='txt': f.write('#  '+data.pop(0))
             f.writelines(data)
 
-        print(f" PyViewDock: Data exported to \"{filename}\"")
+        print(f" PyViewDock: Data exported to \"{filename}\" as \"{format}\".")
 
     def sort(self, remark, reverse=False):
         """
