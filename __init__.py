@@ -8,7 +8,7 @@
   viewer to manage docking result files
 
 
-  Enriched 'load' function (also as drag-and-drop):
+  Enriched built-in 'load' function (also as drag-and-drop):
       * SwissDock's .chimerax
       * pyDock's .ene/.eneRST
 
@@ -17,6 +17,9 @@
 
   - Load pyDock's .ene/.eneRST file:
         load_pydock  filename [, object [, max_n ]]
+
+  - Load .xyz file (generic):
+        load_xyz  filename [, object ]
 
   - Export docked entries data to .csv/.txt file:
         export_docked_data  filename [, format ]
@@ -28,12 +31,12 @@
 
 """
 
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 
 
 from pymol import cmd, plugins
 
-from .io import load_dock4, load_pydock, load_ext, export_docked_data
+from .io import load_dock4, load_pydock, load_xyz, load_ext, export_docked_data
 from .gui import run_gui
 
 
@@ -41,6 +44,7 @@ from .gui import run_gui
 
 cmd.extend("load_dock4", load_dock4)
 cmd.extend("load_pydock", load_pydock)
+cmd.extend("load_xyz", load_xyz)
 cmd.extend("export_docked_data", export_docked_data)
 cmd.load = load_ext
 cmd.extend("load", cmd.load)

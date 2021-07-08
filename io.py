@@ -47,7 +47,8 @@ class Docked():
         # default table headers
         self.headers = [
                         'Cluster', 'ClusterRank', 'deltaG',     # Swiss-Dock
-                        'RANK', 'Total'                         # pyDock
+                        'RANK', 'Total',                        # pyDock
+                        'value'                                 # generic
                         ]
 
     @property
@@ -259,6 +260,45 @@ class Docked():
         # remove atoms of receptor from ligand
         cmd.remove(f"{lig_obj} in {rec_obj}")
 
+    def load_xyz(self, filename, object):
+        """
+            Load a group of structures as an object from .xyz
+            with multiple states and docking information
+
+            Parameters
+            ----------
+            filename : str
+                coordinates file (.xyz)
+            object : str
+                name to be include the new object
+        """
+
+        self.__init__()
+
+        # read comments from xyz file
+        with open(filename, 'rt') as f:
+            xyz_file = f.readlines()
+        nline = 0
+        comments = []
+        while nline < len(xyz_file):
+            natoms = int(xyz_file[nline])
+            comments.append(xyz_file[nline+1].strip())
+            nline += natoms+2
+
+        # process comments
+        # TODO: broader processing and pattern recognition
+        if all(isinstance(i, float) for i in comments):
+            comments = [float(i) for i in comments]
+
+        # add entries to data class
+        for n, comm in enumerate(comments):
+            remarks = {'value': comm}
+            self.entries.append({'internal': {'object': object, 'state': n+1},
+                                 'remarks': remarks})
+
+        # load structures into PyMOL
+        importing.load(filename, object=object, format='xyz', quiet=1)
+
     def export_data(self, filename, format=None):
         """
             Save file containing docked data of all entries
@@ -436,6 +476,28 @@ def load_pydock(filename, object='', max_n=100):
         object = os.path.basename(filename).split('.')[0]
 
     docked.load_pydock(filename, object, max_n)
+    print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
+
+
+def load_xyz(filename, object=''):
+    """
+        Load a group of structures as an object from .xyz
+        with multiple states and docking information
+
+        Parameters
+        ----------
+        filename : str
+            coordinates file (.xyz)
+        object : str
+            name to be include the new object
+    """
+
+    docked = get_docked()
+
+    if not object:
+        object = os.path.basename(filename).split('.')[0]
+
+    docked.load_xyz(filename, object)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
 

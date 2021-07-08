@@ -14,6 +14,8 @@ Obviously inspired from the original [Chimera's View-Dock](https://www.cgl.ucsf.
     .chimerax / .pdb in Dock 4+ format
 * [pyDock](https://life.bsc.es/pid/pydock/) \
     .ene / .eneRST and corresponding .pdb
+* generic xyz \
+    .xyz
 
 
 ### Requirements
@@ -46,7 +48,7 @@ A table will appear with information for every docking entry. It can be column-s
 
 #### PyMOL command line
 
-  - Enriched `load` function (also as drag-and-drop):
+  - Enriched built-in `load` function (also as drag-and-drop):
       * .chimerax
       * .ene/.eneRST
 
@@ -55,6 +57,9 @@ A table will appear with information for every docking entry. It can be column-s
 
   - Load pyDock's .ene/.eneRST file: \
       `load_pydock  filename [, object [, max_n ]]`
+
+  - Load .xyz file: \
+      `load_xyz  filename [, object ]`
 
   - Export docked entries data to .csv/.txt file: \
       `export_docked_data  filename [, format ]`

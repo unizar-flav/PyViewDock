@@ -10,7 +10,7 @@ from pymol import cmd
 from pymol.Qt import QtWidgets, QtCore
 from pymol.Qt.utils import loadUi
 
-from .io import get_docked, load_dock4, load_chimerax, load_pydock, export_docked_data
+from .io import get_docked, load_dock4, load_chimerax, load_pydock, load_xyz, export_docked_data
 
 
 def run_gui():
@@ -59,11 +59,13 @@ def run_gui():
         supported_formats = {'PDB Dock >4 (*.pdb)': load_dock4,
                              'ChimeraX (*.chimerax)': load_chimerax,
                              'pyDock (*.ene; *.eneRST)': load_pydock,
+                             'XYZ (*.xyz)': load_xyz,
                              'All Files(*)': None}
         default_suffix_format = {'pdb': 'PDB Dock >4 (*.pdb)',
                                  'chimerax': 'ChimeraX (*.chimerax)',
                                  'ene': 'pyDock (*.ene; *.eneRST)',
-                                 'enerst': 'pyDock (*.ene; *.eneRST)'}
+                                 'enerst': 'pyDock (*.ene; *.eneRST)',
+                                 'xyz': 'XYZ (*.xyz)'}
         # launch open file dialog from system
         filename, format_selected = QtWidgets.QFileDialog.getOpenFileName(parent=dialog,
                                                                           caption='Open file containing docked structures',
