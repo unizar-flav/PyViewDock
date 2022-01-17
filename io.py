@@ -445,8 +445,11 @@ def load_chimerax(filename):
             cluster_file = os.path.join(chimerax_directory, cluster_filename)
             if os.path.isfile(target_file) and os.path.isfile(target_file):
                 print(f" PyViewDock: Files found locally ({target_filename}, {cluster_filename}). Loading...")
-                importing.load(target_file)
-                load_dock4(cluster_file)
+                for objects_name in ["target", "cluster"]:
+                    if objects_name in cmd.get_names():
+                        cmd.delete(objects_name)
+                importing.load(target_file, 'target')
+                load_dock4(cluster_file, 'cluster', 0)
 
 
 def load_pydock(filename, object='', max_n=100):

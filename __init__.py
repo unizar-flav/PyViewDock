@@ -27,11 +27,11 @@
 
 
   by Sergio Boneta Martinez
-  GPLv3 2021
+  GPLv3 2022
 
 """
 
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 
 
 from pymol import cmd, plugins
