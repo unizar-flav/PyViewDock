@@ -40,11 +40,14 @@ def run_gui():
 
 
     ##  MENUBAR  ------------------------------------------------------
-
+    # column sub-menus
     show_column = widget.menuColumns.addMenu('Show')
     hide_column = widget.menuColumns.addMenu('Hide')
     hide_all = widget.menuColumns.addAction('buttonHideAll')
     hide_all.setText("Hide All")
+    # refresh button
+    refresh_button = widget.menubar.addAction('buttonRefresh')
+    refresh_button.setText("🗘")
 
 
     ##  I/O FILES  ----------------------------------------------------
@@ -179,6 +182,10 @@ def run_gui():
             cmd.disable(" ".join(docked.objects))
             cmd.enable(object)
 
+    def refresh():
+        """Refresh the plug-in and table"""
+        draw_table()
+
     draw_table()
 
 
@@ -189,5 +196,6 @@ def run_gui():
     widget.buttonClearAll.triggered.connect(clear_all)
     hide_all.triggered.connect(hide_header_all)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
+    refresh_button.triggered.connect(refresh)
 
     dialog.show()
