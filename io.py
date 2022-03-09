@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
-from pymol import cmd, importing
+from pymol import cmd, importing, CmdException
 
 
 ##  DOCKED STRUCTURES CLASS  ##########################################
@@ -589,3 +589,26 @@ def load_ext(filename, object='', state=0, format='', finish=1,
     else:
         importing.load(filename, object, state, format, finish,
                         discrete, quiet, multiplex, zoom, partial)
+
+def set_name_catcher(old_name, new_name, _self=cmd):
+    """
+        Change the name of an object or selection.
+
+        This implementation is exact to the original
+        But necessary to catch any renaming and
+        update the corresponding docked entries
+    """
+
+    r = cmd.DEFAULT_ERROR
+    try:
+        _self.lock(_self)
+        r = cmd._cmd.set_name(_self._COb, str(old_name), str(new_name))
+    except:
+        pass
+    else:
+        # TODO: update objects for docked entries
+        pass
+    finally:
+        _self.unlock(r,_self)
+    if _self._raising(r,_self): raise CmdException
+    return r

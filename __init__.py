@@ -36,7 +36,7 @@ __version__ = '0.2.7'
 
 from pymol import cmd, plugins
 
-from .io import load_dock4, load_pydock, load_xyz, load_ext, export_docked_data
+from .io import load_dock4, load_pydock, load_xyz, load_ext, export_docked_data, set_name_catcher
 from .gui import run_gui
 
 
@@ -46,8 +46,12 @@ cmd.extend("load_dock4", load_dock4)
 cmd.extend("load_pydock", load_pydock)
 cmd.extend("load_xyz", load_xyz)
 cmd.extend("export_docked_data", export_docked_data)
+
+# Override built-in functions
 cmd.load = load_ext
 cmd.extend("load", cmd.load)
+cmd.set_name = set_name_catcher
+cmd.extend("set_name", cmd.set_name)
 
 
 ##  GUI  ##############################################################
