@@ -368,6 +368,33 @@ def get_docked() -> 'Docked':
 
 ##  FUNCTIONS  ########################################################
 
+def non_repeated_object(object):
+    """
+        Get an object name that is not used in the current session
+        If the provided name is present, add a numeric suffix
+        i.e.: object_name -> object_name_1, object_name_2, ...
+
+        Parameters
+        ----------
+        object : str
+            name of the object to be checked
+
+        Returns
+        -------
+        str
+            name that is not used in the current session
+    """
+    current_objects = cmd.get_names('objects')
+    if object in current_objects:
+        n = 2
+        while f"{object}_{n}" in current_objects:
+            n += 1
+        print(f" PyViewDock: New object name colliding with existing. \"{object}\" changed to \"{object}_{n}\"")
+        return f"{object}_{n}"
+    else:
+        return object
+
+
 def load_dock4(filename, object='', mode=0):
     """
         Load a SwissDock's cluster of ligands as an object
@@ -390,6 +417,7 @@ def load_dock4(filename, object='', mode=0):
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
+    object = non_repeated_object(object)
 
     # read file as list of strings
     with open(filename, "rt") as f:
@@ -414,6 +442,10 @@ def load_chimerax(filename):
 
     docked = get_docked()
 
+    # default naming for new objects
+    target_object = non_repeated_object('target')
+    clusters_object = non_repeated_object('clusters')
+
     print(f" PyViewDock: Loading \"{filename}\"")
 
     # read ChimeraX file as XML
@@ -435,21 +467,18 @@ def load_chimerax(filename):
             target_pdb = urlopen(target_url).read().decode('utf-8')
             cluster_pdb = urlopen(cluster_url).readlines()
             cluster_pdb = [i.decode('utf-8') for i in cluster_pdb]
-            cmd.read_pdbstr(target_pdb, 'target')
-            docked.load_dock4(cluster_pdb, 'cluster', 0)
+            cmd.read_pdbstr(target_pdb, target_object)
+            docked.load_dock4(cluster_pdb, clusters_object, 0)
         except HTTPError:
-            print(" PyViewDock: Failed reading 'chimerax' file. Bad server response. Too old?")
+            print(" PyViewDock: Failed reading 'chimerax' file. Bad server response. Calculation too old?")
             # find local files that match names in .chimerax directory
             chimerax_directory = os.path.dirname(os.path.realpath(filename))
             target_file = os.path.join(chimerax_directory, target_filename)
             cluster_file = os.path.join(chimerax_directory, cluster_filename)
             if os.path.isfile(target_file) and os.path.isfile(target_file):
                 print(f" PyViewDock: Files found locally ({target_filename}, {cluster_filename}). Loading...")
-                for objects_name in ["target", "cluster"]:
-                    if objects_name in cmd.get_names():
-                        cmd.delete(objects_name)
-                importing.load(target_file, 'target')
-                load_dock4(cluster_file, 'cluster', 0)
+                importing.load(target_file, target_object)
+                load_dock4(cluster_file, clusters_object, 0)
 
 
 def load_pydock(filename, object='', max_n=100):
@@ -477,6 +506,7 @@ def load_pydock(filename, object='', max_n=100):
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
+    object = non_repeated_object(object)
 
     docked.load_pydock(filename, object, max_n)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
@@ -499,6 +529,7 @@ def load_xyz(filename, object=''):
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
+    object = non_repeated_object(object)
 
     docked.load_xyz(filename, object)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
