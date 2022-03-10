@@ -112,11 +112,10 @@ class Docked():
 
         cluster = [line.strip() for line in cluster if line.strip()]
 
-        self.__init__()
-
         # read all structures remarks/coordinates
         i = 0
         pdb = []
+        entries = []
         remark_re = re.compile(r'(?i)^REMARK\b\s+(\w+)\s*:\s*(-?\d+\.?\d*)')
         while i < len(cluster):
 
@@ -142,42 +141,40 @@ class Docked():
 
                 # append to main attribute at the end of molecule
                 pdb.append(pdb_molecule)
-                self.entries.append({'remarks':remarks, 'internal':deepcopy(self.internal_empty)})
+                entries.append({'remarks':remarks, 'internal':deepcopy(self.internal_empty)})
 
             else:
                 i += 1
 
-        # equalize remarks for all entries
-        for n, i in enumerate(self.entries):
-            for j in self.remarks:
-                i['remarks'].setdefault(j, None)
-            # set internals
+        # set internals
+        for n, i in enumerate(entries):
             i['internal']['object'] = object
             i['internal']['state'] = n + 1
 
-        # check if defined Cluster and ClusterRank
-        if mode in ('1', '2') and not 'Cluster' in self.remarks or not 'ClusterRank' in self.remarks:
-            print(" PyViewDock: Failed splitting while loading. Missing 'Cluster' or 'ClusterRank'.")
-            return
-
         # load only first of every cluster (ClusterRank == 0)
         if mode == '1':
+            # check that all entries has ClusterRank remark
+            if not all(['ClusterRank' in i['remarks'] for i in entries]):
+                raise CmdException("Failed splitting while loading. Missing 'ClusterRank'.", "PyViewDock")
             entries_tmp, pdb_tmp = [], []
             n_state = 0
-            for e,p in zip(self.entries, pdb):
+            for e,p in zip(entries, pdb):
                 if e['remarks']['ClusterRank'] == 0:
                     pdb_tmp.append(p)
                     entries_tmp.append(e)
                     n_state += 1
                     entries_tmp[-1]['internal']['state'] = n_state
 
-            self.entries, pdb = deepcopy(entries_tmp), deepcopy(pdb_tmp)
+            entries, pdb = deepcopy(entries_tmp), deepcopy(pdb_tmp)
             cmd.read_pdbstr("".join(pdb), object)
 
         # load all in different objects by Cluster
         elif mode == '2':
+            # check that all entries has Cluster remark
+            if not all(['Cluster' in i['remarks'] for i in entries]):
+                raise CmdException("Failed splitting while loading. Missing 'Cluster'.", "PyViewDock")
             pdb_tmp = dict()
-            for e,p in zip(self.entries, pdb):
+            for e,p in zip(entries, pdb):
                 object_new = object + '-' + str(e['remarks']['Cluster'])
                 pdb_tmp.setdefault(object_new, []).append(p)
                 e['internal']['object'] = object_new
@@ -188,6 +185,8 @@ class Docked():
         # load all in one object
         else:
             cmd.read_pdbstr("".join(pdb), object)
+
+        self.entries.extend(entries)
 
     def load_pydock(self, filename, object, max_n):
         """
@@ -204,8 +203,6 @@ class Docked():
                 maximum number of structures to load
         """
 
-        self.__init__()
-
         rec_obj = object+"_rec"
         lig_obj = object+"_lig"
 
@@ -220,16 +217,16 @@ class Docked():
             receptor_file = [i for i in pdb_files if "_rec.pdb" in i][0]
             ligand_file = [i for i in pdb_files if "_lig.pdb" in i][0]
         except:
-            print(" PyViewDock: Failed loading pyDock file. Missing '_rec.pdb' or '_lig.pdb'.")
-            return
+            raise CmdException("Failed loading pyDock file. Missing '_rec.pdb' or '_lig.pdb'.", "PyViewDock")
 
         # read energy file
+        entries = []
         with open(filename, "rt") as f:
             energy_file = [line.strip() for line in f.readlines() if line.strip() and not line.startswith("----")]
             header = energy_file.pop(0).split()
             for line in energy_file:
                 remarks = { h:(int(v) if h in {'Conf', 'RANK'} else float(v)) for h,v in zip(header, line.split())}
-                self.entries.append({'remarks':deepcopy(remarks), 'internal':deepcopy(self.internal_empty)})
+                entries.append({'remarks':deepcopy(remarks), 'internal':deepcopy(self.internal_empty)})
 
         # load receptor
         importing.load(receptor_file, rec_obj)
@@ -237,7 +234,7 @@ class Docked():
         # load ligands
         loaded = []
         not_found_warning = False
-        for n, entry in enumerate(self.entries):
+        for n, entry in enumerate(entries):
             if n+1 > max_n: break
             conf_num = entry['remarks']['Conf']
             try:
@@ -251,11 +248,14 @@ class Docked():
                 entry['internal']['state'] = len(loaded)
                 importing.load(conf_file, lig_obj, 0)
 
-        if not_found_warning: print(" PyViewDock: WARNING: Some ligands defined on the energy file could not been found and loaded.")
+        if not_found_warning:
+            print(" PyViewDock: WARNING! Some ligands defined on the energy file could not been found and loaded.")
 
         # delete entries which pdb has not been found
-        for i in reversed(range(self.n_entries)):
-            if i not in loaded: del self.entries[i]
+        for i in reversed(range(len(entries))):
+            if i not in loaded: del entries[i]
+
+        self.entries.extend(entries)
 
         # remove atoms of receptor from ligand
         cmd.remove(f"{lig_obj} in {rec_obj}")
@@ -272,8 +272,6 @@ class Docked():
             object : str
                 name to be include the new object
         """
-
-        self.__init__()
 
         # read comments from xyz file
         with open(filename, 'rt') as f:
@@ -314,8 +312,7 @@ class Docked():
         """
 
         if self.n_entries == 0:
-            print(f" PyViewDock: No docked entries found.")
-            return
+            raise CmdException("No docked entries found to export.", "PyViewDock")
 
         # guess format
         if not format:
@@ -394,7 +391,6 @@ def non_repeated_object(object):
     else:
         return object
 
-
 def load_dock4(filename, object='', mode=0):
     """
         Load a SwissDock's cluster of ligands as an object
@@ -425,7 +421,6 @@ def load_dock4(filename, object='', mode=0):
 
     docked.load_dock4(cluster, object, mode)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
-
 
 def load_chimerax(filename):
     """
@@ -458,9 +453,9 @@ def load_chimerax(filename):
         cluster_filename = cluster_url.split('/')[-1]
         if not all([target_url, cluster_url, target_filename, cluster_filename]): raise ValueError
     except FileNotFoundError:
-        print(" PyViewDock: Failed reading 'chimerax' file. File not found.")
+        raise CmdException(f"Failed reading 'chimerax' file. File not found.", "PyViewDock")
     except:
-        print(" PyViewDock: Failed reading 'chimerax' file. Invalid format.")
+        raise CmdException(f"Failed reading 'chimerax' file. Invalid format.", "PyViewDock")
     else:
         # fetch files from server
         try:
@@ -479,7 +474,6 @@ def load_chimerax(filename):
                 print(f" PyViewDock: Files found locally ({target_filename}, {cluster_filename}). Loading...")
                 importing.load(target_file, target_object)
                 load_dock4(cluster_file, clusters_object, 0)
-
 
 def load_pydock(filename, object='', max_n=100):
     """
@@ -511,7 +505,6 @@ def load_pydock(filename, object='', max_n=100):
     docked.load_pydock(filename, object, max_n)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
-
 def load_xyz(filename, object=''):
     """
         Load a group of structures as an object from .xyz
@@ -534,7 +527,6 @@ def load_xyz(filename, object=''):
     docked.load_xyz(filename, object)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
-
 def export_docked_data(filename, format=''):
     """
         Save file containing docked data of all entries
@@ -556,7 +548,6 @@ def export_docked_data(filename, format=''):
         format = suffix if suffix in {'csv', 'txt'} else 'csv'
 
     docked.export_data(filename, format)
-
 
 def load_ext(filename, object='', state=0, format='', finish=1,
              discrete=-1, quiet=1, multiplex=None, zoom=-1, partial=0,
