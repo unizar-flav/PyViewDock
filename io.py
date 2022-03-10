@@ -104,6 +104,24 @@ class Docked():
                     e['internal']['state'] = e['internal']['state'] - int(e['internal']['state'] > entry['internal']['state'])
         del self.entries[ndx]
 
+    def modify_entries(self, remark, old_value, new_value):
+        """
+            Change values of a remark of all entries that matches the old value
+
+            Parameters
+            ----------
+            remark : str
+                remark to change, special treatment for 'object' and 'state'
+            old_value : float / int / str
+                current value of the remark to match and change
+            new_value : float / int / str
+                new value for the remark
+        """
+        section = 'internal' if remark in ['object', 'state'] else 'remarks'
+        for entry in self.entries:
+            if entry[section][remark] == old_value:
+                entry[section][remark] = new_value
+
     def load_dock4(self, cluster, object, mode):
         """
             Load a SwissDock's cluster of ligands from string list in PDB >Dock4 format
@@ -610,8 +628,9 @@ def set_name_catcher(old_name, new_name, _self=cmd):
     except:
         pass
     else:
-        # TODO: update objects for docked entries
-        pass
+        from pymol import session
+        if 'PyViewDock' in vars(session):
+            session.PyViewDock.modify_entries('object', old_name, new_name)
     finally:
         _self.unlock(r,_self)
     if _self._raising(r,_self): raise CmdException
