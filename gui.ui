@@ -53,8 +53,14 @@
        <string>Columns</string>
       </property>
      </widget>
+     <widget class="QMenu" name="menuDockings">
+      <property name="title">
+       <string>Dockings</string>
+      </property>
+     </widget>
      <addaction name="menuFile"/>
      <addaction name="menuColumns"/>
+     <addaction name="menuDockings"/>
     </widget>
    </item>
    <item>
