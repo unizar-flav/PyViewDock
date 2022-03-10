@@ -36,6 +36,7 @@ class Docked():
         Properties
         ----------
         n_entries : int
+        entries_unified : list
         objects : set
         remarks : set
     """
@@ -56,6 +57,14 @@ class Docked():
         return len(self.entries)
 
     @property
+    def entries_unified(self) -> list:
+        """
+            Return entries as a list of a unified dictionary,
+            joining 'remarks' and 'internal'
+        """
+        return [{**entry['internal'], **entry['remarks']} for entry in self.entries]
+
+    @property
     def objects(self) -> set:
         return {i['internal']['object'] for i in self.entries}
 
@@ -67,13 +76,13 @@ class Docked():
             # get all readed REMARKs
             return {j for i in self.entries for j in i['remarks'].keys()}
 
-    def clear(self):
+    def clear(self) -> None:
         """Remove all the objects related to the class and clear it's entries"""
         for obj in self.objects:
             cmd.delete(obj)
         self.__init__()
 
-    def equalize_remarks(self):
+    def equalize_remarks(self) -> None:
         """
             Add to all entries the same remarks,
             with None value if not previously set
@@ -83,7 +92,34 @@ class Docked():
             for remark in all_remarks:
                 entry['remarks'].setdefault(remark, None)
 
-    def remove_ndx(self, ndx, update=True):
+    def findall(self, match_all=True, **remarks_and_values) -> list:
+        """
+            Find a list of entry index that match all/any remarks
+
+            Parameters
+            ----------
+            match_all : bool
+                if True, all remarks must match, otherwise any
+            remarks_and_values : **kwargs
+                key : str
+                    remark to match
+                value : float / int / str
+                    value to match
+
+            Returns
+            -------
+            list
+                list of index of entries that match
+        """
+        # check input fields
+        if remarks_and_values.keys() - self.remarks - {'object', 'state'}:
+            raise ValueError("Not valid remark provided")
+        # find any/all entries that match
+        matcher = all if match_all else any
+        return [n for n, entry in enumerate(self.entries_unified)
+                if matcher(entry[key] == value for key, value in remarks_and_values.items())]
+
+    def remove_ndx(self, ndx, update=True) -> None:
         """
             Remove a stored entry / pdb coordinates based on index
 
@@ -104,7 +140,32 @@ class Docked():
                     e['internal']['state'] = e['internal']['state'] - int(e['internal']['state'] > entry['internal']['state'])
         del self.entries[ndx]
 
-    def modify_entries(self, remark, old_value, new_value):
+    def remove(self, match_all=True, **remarks_and_values) -> None:
+        """
+            Remove entries that match all/any remarks
+
+            Parameters
+            ----------
+            match_all : bool
+                if True, all remarks must match, otherwise any
+            remarks_and_values : **kwargs
+                key : str
+                    remark to match
+                value : float / int / str
+                    value to match
+        """
+        matching_index = self.findall(match_all=match_all, **remarks_and_values)
+        for n in sorted(matching_index, reverse=True):
+            self.remove_ndx(n)
+
+    def remove_without_objects(self) -> None:
+        """
+            Delete the entries without object in PyMOL
+        """
+        for object_to_remove in self.objects - set(cmd.get_names('objects')):
+            self.remove(object=object_to_remove)
+
+    def modify_entries(self, remark, old_value, new_value) -> None:
         """
             Change values of a remark of all entries that matches the old value
 
@@ -122,7 +183,7 @@ class Docked():
             if entry[section][remark] == old_value:
                 entry[section][remark] = new_value
 
-    def load_dock4(self, cluster, object, mode):
+    def load_dock4(self, cluster, object, mode) -> None:
         """
             Load a SwissDock's cluster of ligands from string list in PDB >Dock4 format
 
@@ -217,7 +278,7 @@ class Docked():
         self.entries.extend(entries)
         self.equalize_remarks()
 
-    def load_pydock(self, filename, object, max_n):
+    def load_pydock(self, filename, object, max_n) -> None:
         """
             Load a PyDock's group of structures as an object
             with multiple states and read the docking information
@@ -290,7 +351,7 @@ class Docked():
         # remove atoms of receptor from ligand
         cmd.remove(f"{lig_obj} in {rec_obj}")
 
-    def load_xyz(self, filename, object):
+    def load_xyz(self, filename, object) -> None:
         """
             Load a group of structures as an object from .xyz
             with multiple states and docking information
@@ -328,7 +389,7 @@ class Docked():
         # load structures into PyMOL
         importing.load(filename, object=object, format='xyz', quiet=1)
 
-    def export_data(self, filename, format=None):
+    def export_data(self, filename, format=None) -> None:
         """
             Save file containing docked data of all entries
 
@@ -368,7 +429,7 @@ class Docked():
 
         print(f" PyViewDock: Data exported to \"{filename}\" as \"{format}\".")
 
-    def sort(self, remark, reverse=False):
+    def sort(self, remark, reverse=False) -> None:
         """
             Sort entries according to values of 'remark'
 

@@ -182,10 +182,17 @@ def run_gui():
             cmd.disable(" ".join(docked.objects))
             cmd.enable(object)
 
+
+    ##  MISC FUNCTIONS  -----------------------------------------------
+
     def refresh():
-        """Refresh the plug-in and table"""
+        """Refresh the entries and table"""
+        docked.remove_without_objects()
         draw_table()
 
+
+    ##  MAIN  ---------------------------------------------------------
+    docked.remove_without_objects()
     draw_table()
 
 
