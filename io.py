@@ -73,6 +73,16 @@ class Docked():
             cmd.delete(obj)
         self.__init__()
 
+    def equalize_remarks(self):
+        """
+            Add to all entries the same remarks,
+            with None value if not previously set
+        """
+        all_remarks = self.remarks
+        for entry in self.entries:
+            for remark in all_remarks:
+                entry['remarks'].setdefault(remark, None)
+
     def remove_ndx(self, ndx, update=True):
         """
             Remove a stored entry / pdb coordinates based on index
@@ -187,6 +197,7 @@ class Docked():
             cmd.read_pdbstr("".join(pdb), object)
 
         self.entries.extend(entries)
+        self.equalize_remarks()
 
     def load_pydock(self, filename, object, max_n):
         """
@@ -256,6 +267,7 @@ class Docked():
             if i not in loaded: del entries[i]
 
         self.entries.extend(entries)
+        self.equalize_remarks()
 
         # remove atoms of receptor from ligand
         cmd.remove(f"{lig_obj} in {rec_obj}")
@@ -293,6 +305,7 @@ class Docked():
             remarks = {'value': comm}
             self.entries.append({'internal': {'object': object, 'state': n+1},
                                  'remarks': remarks})
+        self.equalize_remarks()
 
         # load structures into PyMOL
         importing.load(filename, object=object, format='xyz', quiet=1)
