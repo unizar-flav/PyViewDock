@@ -118,7 +118,7 @@ def run_gui():
     ##  TABLE  --------------------------------------------------------
 
     headers = list(docked.headers)
-    dockings = list(docked.objects)
+    dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
     def draw_table(headers=headers, dockings=dockings):
         """Fill the whole table with data from docked entries"""
