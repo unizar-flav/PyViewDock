@@ -89,9 +89,13 @@ def run_gui():
                 # error message
                 error_msg(f"Unsupported format file:  .{suffix}")
                 return
-        # load file with corresponding format' function
+        # load file with corresponding formating function and include new object in table
+        old_objects = set(cmd.get_names())
         supported_formats[format_selected](filename)
-        draw_table()
+        new_object = (set(cmd.get_names()) - old_objects).pop()
+        if old_objects and 'object' not in headers:
+            headers.insert(0, 'object')
+        include_docking(new_object)
 
     def browse_export_data():
         """Callback for the 'Export Data' button"""
