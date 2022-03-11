@@ -41,10 +41,15 @@ def run_gui():
 
     ##  MENUBAR  ------------------------------------------------------
     # column sub-menus
-    show_column = widget.menuColumns.addMenu('Show')
-    hide_column = widget.menuColumns.addMenu('Hide')
-    hide_all = widget.menuColumns.addAction('buttonHideAll')
-    hide_all.setText("Hide All")
+    show_column_menu = widget.menuColumns.addMenu('Show')
+    hide_column_menu = widget.menuColumns.addMenu('Hide')
+    toggle_columns_button = widget.menuColumns.addAction('buttonToggleColumns')
+    toggle_columns_button.setText("Show/Hide All")
+    toggle_objects_button = widget.menuColumns.addAction('buttonToggleObjects')
+    toggle_objects_button.setText("Show/Hide Objects")
+    # dockings sub-menus
+    include_docking_menu = widget.menuDockings.addMenu('Include')
+    exclude_docking_menu = widget.menuDockings.addMenu('Exclude')
     # refresh button
     refresh_button = widget.menubar.addAction('buttonRefresh')
     refresh_button.setText("🗘")
@@ -112,28 +117,34 @@ def run_gui():
 
     ##  TABLE  --------------------------------------------------------
 
-    headers = docked.headers
+    headers = list(docked.headers)
+    dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
-    def draw_table(headers=headers):
+    def draw_table(headers=headers, dockings=dockings):
         """Fill the whole table with data from docked entries"""
         widget.tableDocked.clear()
         widget.tableDocked.setSortingEnabled(False)
         n_internal_columns = 3
         # check if requested headers in remarks
-        headers = [i for i in headers if i in docked.remarks]
+        headers = [i for i in headers if i in docked.remarks | {'object'}]
+        # subset of entries to include based on dockings
+        entries_ndx = []
+        for object in dockings:
+            entries_ndx.extend(docked.findall(object=object))
+        entries = [docked.entries_unified[i] for i in entries_ndx]
         # number of rows and columns
         widget.tableDocked.setColumnCount(len(headers)+n_internal_columns)
-        widget.tableDocked.setRowCount(docked.n_entries)
+        widget.tableDocked.setRowCount(len(entries))
         # fill table
         widget.tableDocked.setHorizontalHeaderLabels([""]*n_internal_columns+headers)
-        for row, entry in enumerate(docked.entries):
+        for row, entry in enumerate(entries):
             # hidden internal columns [n_entry, 'object', 'state']
             widget.tableDocked.setItem(row, 0, QtWidgets.QTableWidgetItem(str(row)))
-            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['internal']['object'])))
-            widget.tableDocked.setItem(row, 2, QtWidgets.QTableWidgetItem(str(entry['internal']['state'])))
+            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['object'])))
+            widget.tableDocked.setItem(row, 2, QtWidgets.QTableWidgetItem(str(entry['state'])))
             # assign to table cell
             for column, remark in enumerate(headers):
-                value = entry['remarks'][remark]
+                value = entry[remark]
                 item = QtWidgets.QTableWidgetItem()
                 item.setData(QtCore.Qt.EditRole, value)
                 widget.tableDocked.setItem(row, column+n_internal_columns, item)
@@ -143,14 +154,23 @@ def run_gui():
         for i in range(n_internal_columns):
             widget.tableDocked.hideColumn(i)
         # update columns menubar
-        show_column.clear()
-        hide_column.clear()
+        show_column_menu.clear()
+        hide_column_menu.clear()
         for i in sorted(docked.remarks - set(headers)):
-            action = show_column.addAction(i)
+            action = show_column_menu.addAction(i)
             action.triggered.connect(lambda chk, i=i: show_header(i))
         for i in headers:
-            action = hide_column.addAction(i)
+            action = hide_column_menu.addAction(i)
             action.triggered.connect(lambda chk, i=i: hide_header(i))
+        # update dockings menubar
+        include_docking_menu.clear()
+        exclude_docking_menu.clear()
+        for i in docked.objects - set(dockings):
+            action = include_docking_menu.addAction(i)
+            action.triggered.connect(lambda chk, i=i: include_docking(i))
+        for i in dockings:
+            action = exclude_docking_menu.addAction(i)
+            action.triggered.connect(lambda chk, i=i: exclude_docking(i))
         # show table
         widget.tableDocked.setSortingEnabled(True)
         widget.tableDocked.show()
@@ -165,9 +185,30 @@ def run_gui():
         headers.remove(header)
         draw_table()
 
-    def hide_header_all():
-        """Remove all column headers"""
-        headers.clear()
+    def toggle_all_headers():
+        """Show/hide all column headers"""
+        if headers:
+            headers.clear()
+        else:
+            headers.extend(docked.remarks)
+        draw_table()
+
+    def toggle_objects():
+        """Show/hide objects column"""
+        if 'object' in headers:
+            headers.remove('object')
+        else:
+            headers.insert(0, 'object')
+        draw_table()
+
+    def include_docking(docking):
+        """Include docking object to table"""
+        dockings.append(docking)
+        draw_table()
+
+    def exclude_docking(docking):
+        """Exclude docking object from table"""
+        dockings.remove(docking)
         draw_table()
 
     def display_selected():
@@ -182,10 +223,19 @@ def run_gui():
             cmd.disable(" ".join(docked.objects))
             cmd.enable(object)
 
+
+    ##  MISC FUNCTIONS  -----------------------------------------------
+
     def refresh():
-        """Refresh the plug-in and table"""
+        """Refresh the entries and table"""
+        docked.remove_without_objects()
         draw_table()
 
+
+    ##  MAIN  ---------------------------------------------------------
+    docked.remove_without_objects()
+    if len(dockings) > 1:
+        headers.insert(0, 'object')
     draw_table()
 
 
@@ -194,7 +244,8 @@ def run_gui():
     widget.buttonOpen.triggered.connect(browse_open)
     widget.buttonExportData.triggered.connect(browse_export_data)
     widget.buttonClearAll.triggered.connect(clear_all)
-    hide_all.triggered.connect(hide_header_all)
+    toggle_columns_button.triggered.connect(toggle_all_headers)
+    toggle_objects_button.triggered.connect(toggle_objects)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
     refresh_button.triggered.connect(refresh)
 
