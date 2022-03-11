@@ -43,8 +43,8 @@ def run_gui():
     # column sub-menus
     show_column_menu = widget.menuColumns.addMenu('Show')
     hide_column_menu = widget.menuColumns.addMenu('Hide')
-    hide_all_button = widget.menuColumns.addAction('buttonHideAll')
-    hide_all_button.setText("Hide All")
+    toggle_columns_button = widget.menuColumns.addAction('buttonToggleColumns')
+    toggle_columns_button.setText("Show/Hide All")
     # dockings sub-menus
     include_docking_menu = widget.menuDockings.addMenu('Include')
     exclude_docking_menu = widget.menuDockings.addMenu('Exclude')
@@ -183,9 +183,12 @@ def run_gui():
         headers.remove(header)
         draw_table()
 
-    def hide_header_all():
-        """Remove all column headers"""
-        headers.clear()
+    def toggle_all_headers():
+        """Show/hide all column headers"""
+        if headers:
+            headers.clear()
+        else:
+            headers.extend(docked.remarks)
         draw_table()
 
     def include_docking(docking):
@@ -229,7 +232,7 @@ def run_gui():
     widget.buttonOpen.triggered.connect(browse_open)
     widget.buttonExportData.triggered.connect(browse_export_data)
     widget.buttonClearAll.triggered.connect(clear_all)
-    hide_all_button.triggered.connect(hide_header_all)
+    toggle_columns_button.triggered.connect(toggle_all_headers)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
     refresh_button.triggered.connect(refresh)
 
