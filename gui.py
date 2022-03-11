@@ -45,6 +45,8 @@ def run_gui():
     hide_column_menu = widget.menuColumns.addMenu('Hide')
     toggle_columns_button = widget.menuColumns.addAction('buttonToggleColumns')
     toggle_columns_button.setText("Show/Hide All")
+    toggle_objects_button = widget.menuColumns.addAction('buttonToggleObjects')
+    toggle_objects_button.setText("Show/Hide Objects")
     # dockings sub-menus
     include_docking_menu = widget.menuDockings.addMenu('Include')
     exclude_docking_menu = widget.menuDockings.addMenu('Exclude')
@@ -124,12 +126,12 @@ def run_gui():
         widget.tableDocked.setSortingEnabled(False)
         n_internal_columns = 3
         # check if requested headers in remarks
-        headers = [i for i in headers if i in docked.remarks]
+        headers = [i for i in headers if i in docked.remarks | {'object'}]
         # subset of entries to include based on dockings
         entries_ndx = []
         for object in dockings:
             entries_ndx.extend(docked.findall(object=object))
-        entries = [docked.entries[i] for i in entries_ndx]
+        entries = [docked.entries_unified[i] for i in entries_ndx]
         # number of rows and columns
         widget.tableDocked.setColumnCount(len(headers)+n_internal_columns)
         widget.tableDocked.setRowCount(len(entries))
@@ -138,11 +140,11 @@ def run_gui():
         for row, entry in enumerate(entries):
             # hidden internal columns [n_entry, 'object', 'state']
             widget.tableDocked.setItem(row, 0, QtWidgets.QTableWidgetItem(str(row)))
-            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['internal']['object'])))
-            widget.tableDocked.setItem(row, 2, QtWidgets.QTableWidgetItem(str(entry['internal']['state'])))
+            widget.tableDocked.setItem(row, 1, QtWidgets.QTableWidgetItem(str(entry['object'])))
+            widget.tableDocked.setItem(row, 2, QtWidgets.QTableWidgetItem(str(entry['state'])))
             # assign to table cell
             for column, remark in enumerate(headers):
-                value = entry['remarks'][remark]
+                value = entry[remark]
                 item = QtWidgets.QTableWidgetItem()
                 item.setData(QtCore.Qt.EditRole, value)
                 widget.tableDocked.setItem(row, column+n_internal_columns, item)
@@ -191,6 +193,14 @@ def run_gui():
             headers.extend(docked.remarks)
         draw_table()
 
+    def toggle_objects():
+        """Show/hide objects column"""
+        if 'object' in headers:
+            headers.remove('object')
+        else:
+            headers.insert(0, 'object')
+        draw_table()
+
     def include_docking(docking):
         """Include docking object to table"""
         dockings.append(docking)
@@ -224,6 +234,8 @@ def run_gui():
 
     ##  MAIN  ---------------------------------------------------------
     docked.remove_without_objects()
+    if len(dockings) > 1:
+        headers.insert(0, 'object')
     draw_table()
 
 
@@ -233,6 +245,7 @@ def run_gui():
     widget.buttonExportData.triggered.connect(browse_export_data)
     widget.buttonClearAll.triggered.connect(clear_all)
     toggle_columns_button.triggered.connect(toggle_all_headers)
+    toggle_objects_button.triggered.connect(toggle_objects)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
     refresh_button.triggered.connect(refresh)
 
