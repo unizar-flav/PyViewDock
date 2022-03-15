@@ -3,3 +3,8 @@
 
 .qt_for_python
 .vscode
+
+# release files
+PyViewDock
+PyViewDock.zip
+examples.zip
