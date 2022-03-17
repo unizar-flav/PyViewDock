@@ -7,10 +7,10 @@
 import os
 
 from pymol import cmd
-from pymol.Qt import QtWidgets, QtCore
+from pymol.Qt import QtWidgets, QtCore, QtGui
 from pymol.Qt.utils import loadUi
 
-from .io import get_docked, load_dock4, load_chimerax, load_pydock, load_xyz, export_docked_data
+from .io import get_docked, load_dock4, load_chimerax, load_pydock, load_xyz, export_docked_data, non_repeated_object
 
 
 def run_gui():
@@ -56,7 +56,6 @@ def run_gui():
 
 
     ##  I/O FILES  ----------------------------------------------------
-
     def clear_all():
         """Clear all the docked entries"""
         docked.clear()
@@ -120,7 +119,6 @@ def run_gui():
 
 
     ##  TABLE  --------------------------------------------------------
-
     headers = list(docked.headers)
     dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
@@ -215,25 +213,61 @@ def run_gui():
         dockings.remove(docking)
         draw_table()
 
-    def display_selected():
-        """Display entries corresponding to selected rows"""
-        #TODO: multiple selection
+    def selected() -> list:
+        """Return selected row, object and state"""
         selected_row = widget.tableDocked.selectedItems()
         if selected_row:
             row_n = selected_row[0].row()
             object = widget.tableDocked.item(row_n, 1).text()
             state = widget.tableDocked.item(row_n, 2).text()
+            return [row_n, object, state]
+        else:
+            return []
+
+    def display_selected():
+        """Display entries corresponding to selected rows"""
+        #TODO: multiple selection
+        selected_row = selected()
+        if selected_row:
+            row_n, object, state = selected_row
             cmd.set('state', state)
             cmd.disable(" ".join(docked.objects))
             cmd.enable(object)
 
 
-    ##  MISC FUNCTIONS  -----------------------------------------------
+    ##  RIGHT CLICK MENU  ---------------------------------------------
+    def right_click():
+        """Context menu for right click on a table element"""
+        if selected():
+            menu = QtWidgets.QMenu()
+            menu.addAction('Copy to new object').triggered.connect(rc_copy_to_new_object)
+            menu.exec_(QtGui.QCursor.pos())
 
+    def rc_copy_to_new_object():
+        """Copy the selected entry to a new object"""
+        row_n, object, state = selected()
+        object_new = object + '-' + state
+        object_new = non_repeated_object(object_new)
+        cmd.create(object_new, f"object {object}", source_state=state, target_state=1, zoom=0, quiet=1, extract=None)
+        print(f" PyViewDock: copied state {state} from \"{object}\" to \"{object_new}\"")
+
+    ##  MISC FUNCTIONS  -----------------------------------------------
     def refresh():
         """Refresh the entries and table"""
         docked.remove_without_objects()
         draw_table()
+
+
+    ##  CALLBACKS  ----------------------------------------------------
+    widget.buttonOpen.triggered.connect(browse_open)
+    widget.buttonExportData.triggered.connect(browse_export_data)
+    widget.buttonClearAll.triggered.connect(clear_all)
+    toggle_columns_button.triggered.connect(toggle_all_headers)
+    toggle_objects_button.triggered.connect(toggle_objects)
+    refresh_button.triggered.connect(refresh)
+    widget.tableDocked.itemSelectionChanged.connect(display_selected)
+    widget.tableDocked.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+    widget.tableDocked.customContextMenuRequested.connect(right_click)
 
 
     ##  MAIN  ---------------------------------------------------------
@@ -241,16 +275,5 @@ def run_gui():
     if len(dockings) > 1:
         headers.insert(0, 'object')
     draw_table()
-
-
-    ##  CALLBACKS  ----------------------------------------------------
-
-    widget.buttonOpen.triggered.connect(browse_open)
-    widget.buttonExportData.triggered.connect(browse_export_data)
-    widget.buttonClearAll.triggered.connect(clear_all)
-    toggle_columns_button.triggered.connect(toggle_all_headers)
-    toggle_objects_button.triggered.connect(toggle_objects)
-    widget.tableDocked.itemSelectionChanged.connect(display_selected)
-    refresh_button.triggered.connect(refresh)
 
     dialog.show()
