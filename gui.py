@@ -219,7 +219,7 @@ def run_gui():
         if selected_row:
             row_n = selected_row[0].row()
             object = widget.tableDocked.item(row_n, 1).text()
-            state = widget.tableDocked.item(row_n, 2).text()
+            state = int(widget.tableDocked.item(row_n, 2).text())
             return [row_n, object, state]
         else:
             return []
@@ -241,6 +241,7 @@ def run_gui():
         if selected():
             menu = QtWidgets.QMenu()
             menu.addAction('Copy to new object').triggered.connect(rc_copy_to_new_object)
+            menu.addAction('Delete entry').triggered.connect(rc_delete)
             menu.exec_(QtGui.QCursor.pos())
 
     def rc_copy_to_new_object():
@@ -250,6 +251,14 @@ def run_gui():
         object_new = non_repeated_object(object_new)
         cmd.create(object_new, f"object {object}", source_state=state, target_state=1, zoom=0, quiet=1, extract=None)
         print(f" PyViewDock: copied state {state} from \"{object}\" to \"{object_new}\"")
+
+    def rc_delete():
+        """Delete the selected entry"""
+        row_n, object, state = selected()
+        docked.remove(object=object, state=state)
+        print(f" PyViewDock: deleted state {state} from \"{object}\"")
+        refresh()
+
 
     ##  MISC FUNCTIONS  -----------------------------------------------
     def refresh():

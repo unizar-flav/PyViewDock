@@ -121,24 +121,27 @@ class Docked():
 
     def remove_ndx(self, ndx, update=True) -> None:
         """
-            Remove a stored entry / pdb coordinates based on index
+            Remove a stored entry and state based on index
 
             Paramenters
             -----------
             ndx : int
                 index of entry to remove
             update : bool
-                update entries by decrement 'state' of same 'object' and 'ClusterRank' of same 'Cluster'
+                update entries by decrement 'state' of same 'object'
         """
-
-        entry = self.entries[ndx]
-        if update and 'Cluster' in self.remarks and 'ClusterRank' in self.remarks:
-            for e in self.entries:
-                if e['remarks']['Cluster'] == entry['remarks']['Cluster']:
-                    e['remarks']['ClusterRank'] = e['remarks']['ClusterRank'] - int(e['remarks']['ClusterRank'] > entry['remarks']['ClusterRank'])
-                if e['internal']['object'] == entry['internal']['object']:
-                    e['internal']['state'] = e['internal']['state'] - int(e['internal']['state'] > entry['internal']['state'])
+        object = self.entries[ndx]['internal']['object']
+        state = self.entries[ndx]['internal']['state']
         del self.entries[ndx]
+        tmp_object = non_repeated_object("tmp")
+        cmd.create(tmp_object, f"object {object}", zoom=0, quiet=1)
+        cmd.delete(object)
+        for entry in [self.entries[n] for n in self.findall(object=object)]:
+            entry_state = entry['internal']['state']
+            cmd.create(object, f"object {tmp_object}", source_state=entry_state, target_state=-1, zoom=0, quiet=1, extract=None)
+            if update:
+                entry['internal']['state'] -= int(entry_state > state)
+        cmd.delete(tmp_object)
 
     def remove(self, match_all=True, **remarks_and_values) -> None:
         """
