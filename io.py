@@ -5,13 +5,14 @@
 """
 
 
+import glob
 import os
 import re
-import glob
-from copy import deepcopy
 import xml.etree.ElementTree as ET
+import zipfile
+from copy import deepcopy
+from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
-from urllib.error import URLError, HTTPError
 
 from pymol import cmd, importing, CmdException
 
@@ -547,6 +548,7 @@ def load_dock4(filename, object='', mode=0):
         ----------
         filename : str
             cluster of structures in PDB format
+            or zip file containing a .dock4.pdb file
         object : str
             name to be include the new object
             if absent, taken from filename
@@ -558,13 +560,22 @@ def load_dock4(filename, object='', mode=0):
 
     docked = get_docked()
 
+    # check file and read as list of strings
+    if not os.path.isfile(filename):
+        raise CmdException(f"File \"{filename}\" not found.", "PyViewDock")
+    elif zipfile.is_zipfile(filename):
+        with zipfile.ZipFile(filename, 'r') as z:
+            dock4_files = [i for i in z.namelist() if i.endswith('.dock4.pdb')]
+            if not dock4_files:
+                raise CmdException(f"No .dock4.pdb file found in \"{filename}\".", "PyViewDock")
+            cluster = z.read(dock4_files[0]).decode('utf-8').split('\n')
+    else:
+        with open(filename, "rt") as f:
+            cluster = f.readlines()
+
     if not object:
         object = os.path.basename(filename).split('.')[0]
     object = non_repeated_object(object)
-
-    # read file as list of strings
-    with open(filename, "rt") as f:
-        cluster = f.readlines()
 
     docked.load_dock4(cluster, object, mode)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")

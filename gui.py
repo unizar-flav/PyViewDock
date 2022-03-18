@@ -63,7 +63,7 @@ def run_gui():
 
     def browse_open():
         """Callback for the 'Open' button"""
-        supported_formats = {'PDB Dock >4 (*.pdb)': load_dock4,
+        supported_formats = {'PDB Dock >4 (*.pdb; *.zip)': load_dock4,
                              'ChimeraX (*.chimerax)': load_chimerax,
                              'pyDock (*.ene; *.eneRST)': load_pydock,
                              'XYZ (*.xyz)': load_xyz,
