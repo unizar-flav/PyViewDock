@@ -119,6 +119,31 @@ class Docked():
         return [n for n, entry in enumerate(self.entries_unified)
                 if matcher(entry[key] == value for key, value in remarks_and_values.items())]
 
+    def find(self, match_all=True, **remarks_and_values) -> int:
+        """
+            Find the index of the first entry that match all/any remarks
+
+            Parameters
+            ----------
+            match_all : bool
+                if True, all remarks must match, otherwise any
+            remarks_and_values : **kwargs
+                key : str
+                    remark to match
+                value : float / int / str
+                    value to match
+
+            Returns
+            -------
+            int
+                index of entry that match, None if not found
+        """
+        matching_index = self.findall(match_all=match_all, **remarks_and_values)
+        if matching_index:
+            return matching_index[0]
+        else:
+            return None
+
     def remove_ndx(self, ndx, update=True) -> None:
         """
             Remove a stored entry and state based on index

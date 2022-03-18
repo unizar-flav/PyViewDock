@@ -214,13 +214,14 @@ def run_gui():
         draw_table()
 
     def selected() -> list:
-        """Return selected row, object and state"""
+        """Return selected index, object and state"""
         selected_row = widget.tableDocked.selectedItems()
         if selected_row:
             row_n = selected_row[0].row()
             object = widget.tableDocked.item(row_n, 1).text()
             state = int(widget.tableDocked.item(row_n, 2).text())
-            return [row_n, object, state]
+            ndx = docked.find(object=object, state=state)
+            return [ndx, object, state]
         else:
             return []
 
@@ -229,7 +230,7 @@ def run_gui():
         #TODO: multiple selection
         selected_row = selected()
         if selected_row:
-            row_n, object, state = selected_row
+            ndx, object, state = selected_row
             cmd.set('state', state)
             cmd.disable(" ".join(docked.objects))
             cmd.enable(object)
@@ -238,18 +239,23 @@ def run_gui():
     ##  RIGHT CLICK MENU  ---------------------------------------------
     def right_click():
         """Context menu for right click on a table element"""
-        if selected():
+        selected_row = selected()
+        if selected_row:
+            ndx, object, state = selected_row
             menu = QtWidgets.QMenu()
+            remarks_menu = menu.addMenu("All properties")
+            for key, value in docked.entries[ndx]['remarks'].items():
+                if value is not None:
+                    remarks_menu.addAction(f"{key}:  {value}")
             menu.addAction('Copy to new object').triggered.connect(rc_copy_to_new_object)
             menu.addAction('Delete entry').triggered.connect(rc_delete)
             menu.exec_(QtGui.QCursor.pos())
 
     def rc_copy_to_new_object():
         """Copy the selected entry to a new object"""
-        row_n, object, state = selected()
+        ndx, object, state = selected()
         object_new = f"{object}-{state}"
         object_new = non_repeated_object(object_new)
-        ndx = docked.findall(object=object, state=state)[0]
         docked.copy_to_object(ndx, object_new, extract=False)
         cmd.disable(f"object {object_new}")
         print(f" PyViewDock: copied state {state} from \"{object}\" to \"{object_new}\"")
@@ -257,8 +263,8 @@ def run_gui():
 
     def rc_delete():
         """Delete the selected entry"""
-        row_n, object, state = selected()
-        docked.remove(object=object, state=state)
+        ndx, object, state = selected()
+        docked.remove_ndx(ndx)
         print(f" PyViewDock: deleted state {state} from \"{object}\"")
         refresh()
 
