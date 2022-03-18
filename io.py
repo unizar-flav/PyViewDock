@@ -186,6 +186,33 @@ class Docked():
             if entry[section][remark] == old_value:
                 entry[section][remark] = new_value
 
+    def copy_to_object(self, ndx, object, extract=False) -> None:
+        """
+            Copy an entry to a new object
+
+            Parameters
+            ----------
+            ndx : int
+                index of entry to copy
+            object : str
+                name of the new object
+            extract : bool
+                extract the entry from the original object
+        """
+        entry = self.entries[ndx]
+        self.entries.append(deepcopy(entry))
+        self.entries[-1]['internal']['object'] = object
+        self.entries[-1]['internal']['state'] = 1
+        cmd.create(object,
+                   f"object {entry['internal']['object']}",
+                   source_state=entry['internal']['state'],
+                   target_state=1,
+                   zoom=0,
+                   quiet=1,
+                   extract=False)
+        if extract:
+            self.remove_ndx(ndx)
+
     def load_dock4(self, cluster, object, mode) -> None:
         """
             Load a SwissDock's cluster of ligands from string list in PDB >Dock4 format

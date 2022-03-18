@@ -247,10 +247,13 @@ def run_gui():
     def rc_copy_to_new_object():
         """Copy the selected entry to a new object"""
         row_n, object, state = selected()
-        object_new = object + '-' + state
+        object_new = f"{object}-{state}"
         object_new = non_repeated_object(object_new)
-        cmd.create(object_new, f"object {object}", source_state=state, target_state=1, zoom=0, quiet=1, extract=None)
+        ndx = docked.findall(object=object, state=state)[0]
+        docked.copy_to_object(ndx, object_new, extract=False)
+        cmd.disable(f"object {object_new}")
         print(f" PyViewDock: copied state {state} from \"{object}\" to \"{object_new}\"")
+        refresh()
 
     def rc_delete():
         """Delete the selected entry"""
