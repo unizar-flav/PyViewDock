@@ -16,6 +16,8 @@ from urllib.request import urlopen
 
 from pymol import cmd, importing, CmdException
 
+from . import __version__
+
 
 ##  DOCKED STRUCTURES CLASS  ##########################################
 
@@ -40,11 +42,13 @@ class Docked():
         entries_unified : list
         objects : set
         remarks : set
+        data : dict
     """
 
+    version = __version__
     internal_empty = {'object':'', 'state': 0}
 
-    def __init__(self):
+    def __init__(self, session_PyViewDock:dict=None) -> None:
         self.entries = []       # list of dict for every docked entry
         # default table headers
         self.headers = [
@@ -52,6 +56,10 @@ class Docked():
                         'RANK', 'Total',                        # pyDock
                         'value'                                 # generic
                         ]
+        if session_PyViewDock:
+            self.entries = session_PyViewDock['entries']
+            self.headers = session_PyViewDock['headers']
+        set_docked(self)
 
     @property
     def n_entries(self) -> int:
@@ -76,6 +84,15 @@ class Docked():
         else:
             # get all readed REMARKs
             return {j for i in self.entries for j in i['remarks'].keys()}
+
+    @property
+    def data(self) -> dict:
+        """Return docked data as a dictionary to be saved in a session"""
+        return {
+            'version': self.version,
+            'entries': self.entries,
+            'headers': self.headers
+            }
 
     def clear(self) -> None:
         """Remove all the objects related to the class and clear it's entries"""
@@ -502,13 +519,43 @@ class Docked():
 
         self.entries = sorted(self.entries, key=lambda k: k['remarks'][remark], reverse=reverse)
 
+def set_docked(docked:'Docked') -> None:
+    """
+        Set 'docked' dictionary to current session
+        from a 'Docked' object.
+
+        Parameters
+        ----------
+        docked : Docked
+            'Docked' object
+    """
+    from pymol import session
+    session.PyViewDock = docked.data
 
 def get_docked() -> 'Docked':
-    """Get 'Docked' class from current session or initialize a new one"""
+    """
+        Get 'docked' dictionary from current session
+        or initialize a new one and return a 'Docked'
+        object from it.
+
+        Returns
+        -------
+        Docked
+            'Docked' object
+    """
     from pymol import session
     if not 'PyViewDock' in vars(session):
-        session.PyViewDock = Docked()
-    return session.PyViewDock
+        docked = Docked()
+    else:
+        if isinstance(session.PyViewDock, dict):
+            session_PyViewDock = session.PyViewDock
+        else:
+            # object directly saved for retro-compatibility
+            session_PyViewDock = {'version': '0.3.1',   # last version to save whole class
+                                  'entries': session.PyViewDock.entries,
+                                  'headers': session.PyViewDock.headers}
+        docked = Docked(session_PyViewDock)
+    return docked
 
 
 ##  FUNCTIONS  ########################################################
@@ -755,9 +802,8 @@ def set_name_catcher(old_name, new_name, _self=cmd):
     except:
         pass
     else:
-        from pymol import session
-        if 'PyViewDock' in vars(session):
-            session.PyViewDock.modify_entries('object', old_name, new_name)
+        docked = get_docked()
+        docked.modify_entries('object', old_name, new_name)
     finally:
         _self.unlock(r,_self)
     if _self._raising(r,_self): raise CmdException
