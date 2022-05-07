@@ -2,19 +2,18 @@
 
 ## Compress files to be published with the release
 
-# Main plugin files
+# Main plug-in files
 name="PyViewDock"
-contents="README.md \
-          LICENSE \
-          gui.ui \
-          gui.py \
-          io.py \
-          __init__.py"
-mkdir -p $name
-for file in $contents; do
+cp_contents="README.md \
+             LICENSE"
+for file in $cp_contents; do
     cp $file $name/
 done
+rm -rf $name/__pycache__
 zip ${name}.zip -r $name
+for file in $cp_contents; do
+    rm $name/$file
+done
 
 # Examples
 zip examples.zip -r examples
