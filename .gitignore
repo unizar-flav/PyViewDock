@@ -5,6 +5,6 @@
 .vscode
 
 # release files
-PyViewDock
+PyViewDock/README.md
 PyViewDock.zip
 examples.zip

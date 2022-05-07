@@ -2,6 +2,10 @@
   Graphical User Interface
   ========================
 
+  Functions
+  ---------
+    run_gui
+
 """
 
 import os
@@ -10,10 +14,11 @@ from pymol import cmd
 from pymol.Qt import QtWidgets, QtCore, QtGui
 from pymol.Qt.utils import loadUi
 
-from .io import get_docked, load_dock4, load_chimerax, load_pydock, load_xyz, export_docked_data, non_repeated_object
+from .docked import Docked, get_docked
+from .io import load_dock4, load_chimerax, load_pydock, load_xyz, export_docked_data, non_repeated_object
 
 
-def run_gui():
+def run_gui() -> None:
     """Main PyViewDock dialog window"""
 
     docked = get_docked()

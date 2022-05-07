@@ -31,8 +31,7 @@
 
 """
 
-__version__ = '0.3.1'
-
+__version__ = '0.3.2'
 
 from pymol import cmd, plugins
 
@@ -41,21 +40,17 @@ from .gui import run_gui
 
 
 ##  PYMOL FUNCTIONS  ##################################################
-
 cmd.extend("load_dock4", load_dock4)
 cmd.extend("load_pydock", load_pydock)
 cmd.extend("load_xyz", load_xyz)
 cmd.extend("export_docked_data", export_docked_data)
-
-# Override built-in functions
+# Override built-in functions -----------------------------------------
 cmd.load = load_ext
 cmd.extend("load", cmd.load)
 cmd.set_name = set_name_catcher
 cmd.extend("set_name", cmd.set_name)
 
-
 ##  GUI  ##############################################################
-
 def __init_plugin__(app=None):
     """Add an entry to the PyMOL 'Plugin' menu"""
     plugins.addmenuitemqt("PyViewDock", run_gui)
