@@ -35,7 +35,8 @@ __version__ = '0.3.2'
 
 from pymol import cmd, plugins
 
-from .io import load_dock4, load_pydock, load_xyz, load_ext, export_docked_data, set_name_catcher
+from .io import load_dock4, load_pydock, load_xyz, load_ext, export_docked_data
+from .misc import set_name_catcher
 from .gui import run_gui
 
 

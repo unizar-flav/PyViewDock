@@ -4,14 +4,12 @@
 
   Functions
   ---------
-    non_repeated_object
     load_dock4
     load_chimerax
     load_pydock
     load_xyz
     export_docked_data
     load_ext
-    set_name_catcher
 
 """
 
@@ -25,33 +23,8 @@ from urllib.request import urlopen
 from pymol import cmd, importing, CmdException
 
 from .docked import Docked, get_docked
+from .misc import non_repeated_object
 
-
-def non_repeated_object(object:str) -> str:
-    """
-        Get an object name that is not used in the current session
-        If the provided name is present, add a numeric suffix
-        i.e.: object_name -> object_name_1, object_name_2, ...
-
-        Parameters
-        ----------
-        object : str
-            name of the object to be checked
-
-        Returns
-        -------
-        str
-            name that is not used in the current session
-    """
-    current_objects = cmd.get_names('objects')
-    if object in current_objects:
-        n = 2
-        while f"{object}_{n}" in current_objects:
-            n += 1
-        print(f" PyViewDock: New object name colliding with existing. \"{object}\" changed to \"{object}_{n}\"")
-        return f"{object}_{n}"
-    else:
-        return object
 
 def load_dock4(filename, object='', mode=0) -> None:
     """
@@ -252,26 +225,3 @@ def load_ext(filename, object='', state=0, format='', finish=1,
     else:
         importing.load(filename, object, state, format, finish,
                         discrete, quiet, multiplex, zoom, partial)
-
-def set_name_catcher(old_name, new_name, _self=cmd):
-    """
-        Change the name of an object or selection.
-
-        This implementation is exact to the original
-        But necessary to catch any renaming and
-        update the corresponding docked entries
-    """
-
-    r = cmd.DEFAULT_ERROR
-    try:
-        _self.lock(_self)
-        r = cmd._cmd.set_name(_self._COb, str(old_name), str(new_name))
-    except:
-        pass
-    else:
-        docked = get_docked()
-        docked.modify_entries('object', old_name, new_name)
-    finally:
-        _self.unlock(r,_self)
-    if _self._raising(r,_self): raise CmdException
-    return r

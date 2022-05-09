@@ -21,6 +21,7 @@ from copy import deepcopy
 from pymol import cmd, importing, CmdException
 
 from . import __version__
+from .misc import non_repeated_object
 
 
 def set_docked(docked:'Docked') -> None:
