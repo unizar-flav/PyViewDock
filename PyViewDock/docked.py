@@ -21,7 +21,7 @@ from copy import deepcopy
 from pymol import cmd, importing, CmdException
 
 from . import __version__
-from .misc import non_repeated_object
+from . import misc
 
 
 def set_docked(docked:'Docked') -> None:
@@ -63,9 +63,14 @@ def get_docked() -> 'Docked':
     return docked
 
 class Docked():
-
     """
         Group of docked molecules class
+
+        Parameters
+        ----------
+        session_PyViewDock : dict
+            dictionary with 'Docked' data saved
+            in the current session to be used
 
         Attributes
         ----------
@@ -217,7 +222,7 @@ class Docked():
         object = self.entries[ndx]['internal']['object']
         state = self.entries[ndx]['internal']['state']
         del self.entries[ndx]
-        tmp_object = non_repeated_object("tmp")
+        tmp_object = misc.non_repeated_object("tmp")
         cmd.create(tmp_object, f"object {object}", zoom=0, quiet=1)
         cmd.delete(object)
         for entry in [self.entries[n] for n in self.findall(object=object)]:

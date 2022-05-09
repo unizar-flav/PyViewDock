@@ -11,11 +11,11 @@
 import os
 
 from pymol import cmd
-from pymol.Qt import QtWidgets, QtCore, QtGui
+from pymol.Qt import QtCore, QtGui, QtWidgets
 from pymol.Qt.utils import loadUi
 
-from .docked import Docked, get_docked
-from .io import load_dock4, load_chimerax, load_pydock, load_xyz, export_docked_data, non_repeated_object
+from . import io, misc
+from .docked import get_docked
 
 
 def run_gui() -> None:
@@ -68,10 +68,10 @@ def run_gui() -> None:
 
     def browse_open():
         """Callback for the 'Open' button"""
-        supported_formats = {'PDB Dock >4 (*.pdb; *.zip)': load_dock4,
-                             'ChimeraX (*.chimerax)': load_chimerax,
-                             'pyDock (*.ene; *.eneRST)': load_pydock,
-                             'XYZ (*.xyz)': load_xyz,
+        supported_formats = {'PDB Dock >4 (*.pdb; *.zip)': io.load_dock4,
+                             'ChimeraX (*.chimerax)': io.load_chimerax,
+                             'pyDock (*.ene; *.eneRST)': io.load_pydock,
+                             'XYZ (*.xyz)': io.load_xyz,
                              'All Files(*)': None}
         default_suffix_format = {'pdb': 'PDB Dock >4 (*.pdb)',
                                  'chimerax': 'ChimeraX (*.chimerax)',
@@ -120,7 +120,7 @@ def run_gui() -> None:
             # if not in supported_formats, fallback to csv
             format_selected = default_suffix_format.get(suffix, default_suffix_format['csv'])
         # save file with corresponding format' arguments
-        export_docked_data(filename, supported_formats[format_selected])
+        io.export_docked_data(filename, supported_formats[format_selected])
 
 
     ##  TABLE  --------------------------------------------------------
@@ -260,7 +260,7 @@ def run_gui() -> None:
         """Copy the selected entry to a new object"""
         ndx, object, state = selected()
         object_new = f"{object}-{state}"
-        object_new = non_repeated_object(object_new)
+        object_new = misc.non_repeated_object(object_new)
         docked.copy_to_object(ndx, object_new, extract=False)
         cmd.disable(f"object {object_new}")
         print(f" PyViewDock: copied state {state} from \"{object}\" to \"{object_new}\"")

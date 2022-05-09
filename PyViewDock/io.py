@@ -22,8 +22,8 @@ from urllib.request import urlopen
 
 from pymol import cmd, importing, CmdException
 
+from . import misc
 from .docked import Docked, get_docked
-from .misc import non_repeated_object
 
 
 def load_dock4(filename, object='', mode=0) -> None:
@@ -62,7 +62,7 @@ def load_dock4(filename, object='', mode=0) -> None:
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
-    object = non_repeated_object(object)
+    object = misc.non_repeated_object(object)
 
     docked.load_dock4(cluster, object, mode)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
@@ -83,8 +83,8 @@ def load_chimerax(filename) -> None:
     docked = get_docked()
 
     # default naming for new objects
-    target_object = non_repeated_object('target')
-    clusters_object = non_repeated_object('clusters')
+    target_object = misc.non_repeated_object('target')
+    clusters_object = misc.non_repeated_object('clusters')
 
     print(f" PyViewDock: Loading \"{filename}\"")
 
@@ -145,7 +145,7 @@ def load_pydock(filename, object='', max_n=100) -> None:
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
-    object = non_repeated_object(object)
+    object = misc.non_repeated_object(object)
 
     docked.load_pydock(filename, object, max_n)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
@@ -167,7 +167,7 @@ def load_xyz(filename, object='') -> None:
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
-    object = non_repeated_object(object)
+    object = misc.non_repeated_object(object)
 
     docked.load_xyz(filename, object)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
