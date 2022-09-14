@@ -8,6 +8,9 @@ A [PyMOL](https://pymolwiki.org) plug-in that adds capabilities to this molecula
 Obviously inspired from the original [Chimera's View-Dock](https://www.cgl.ucsf.edu/chimera/docs/ContributedSoftware/viewdock/framevd.html)
 
 
+![usage example](examples/usage_01.gif)
+
+
 ### Supported formats with software/server results
 
 * [Swiss-Dock](http://www.swissdock.ch/) \
