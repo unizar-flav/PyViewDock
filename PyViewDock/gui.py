@@ -18,6 +18,8 @@ from . import io, misc
 from .docked import get_docked
 
 
+headers = []
+
 def run_gui() -> None:
     """Main PyViewDock dialog window"""
 
@@ -124,7 +126,8 @@ def run_gui() -> None:
 
 
     ##  TABLE  --------------------------------------------------------
-    headers = list(docked.headers)
+    global headers
+    headers = headers or list(docked.headers)
     dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
     def draw_table(headers=headers, dockings=dockings):
