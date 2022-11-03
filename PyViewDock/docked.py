@@ -100,7 +100,7 @@ class Docked():
         self.headers = [
                         'Cluster', 'ClusterRank', 'deltaG',     # Swiss-Dock
                         'RANK', 'Total',                        # pyDock
-                        'value'                                 # generic
+                        'structure', 'value'                    # generic
                         ]
         if session_PyViewDock:
             self.entries = session_PyViewDock['entries']
@@ -500,7 +500,7 @@ class Docked():
 
         # add entries to data class
         for n, comm in enumerate(comments):
-            remarks = {'value': comm}
+            remarks = {'structure': n+1, 'value': comm}
             self.entries.append({'internal': {'object': object, 'state': n+1},
                                  'remarks': remarks})
         self.equalize_remarks()
