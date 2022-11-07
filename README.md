@@ -33,10 +33,10 @@ In the case of [open-source PyMOL](https://github.com/schrodinger/pymol-open-sou
 
 Easy intallable. Open PyMOL and use it's [plugin manager](https://pymolwiki.org/index.php/Plugin_Manager): `Plugin > Plugin Manager > Install New Plugin`
 
-You can [download a zip](https://github.com/unizar-qtc/PyViewDock/releases/latest/download/PyViewDock.zip) to install the latest release from a local file or directly provide it an URL:
+You can [download a zip](https://github.com/unizar-flav/PyViewDock/releases/latest/download/PyViewDock.zip) to install the latest release from a local file or directly provide it an URL:
 
 ```
-https://github.com/unizar-qtc/PyViewDock/releases/latest/download/PyViewDock.zip
+https://github.com/unizar-flav/PyViewDock/releases/latest/download/PyViewDock.zip
 ```
 
 It is recomended to restart PyMOL after installation, although it should not be necessary.
@@ -71,4 +71,4 @@ A table will appear with information for every docking entry. It can be column-s
 
 
 ### How to cite
-  > Boneta, S., _PyViewDock_, 2021, https://github.com/unizar-qtc/PyViewDock
+  > Boneta, S., _PyViewDock_, 2021, https://github.com/unizar-flav/PyViewDock
