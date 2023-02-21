@@ -162,8 +162,8 @@ class Docked():
 
             Parameters
             ----------
-            match_all : bool
-                if True, all remarks must match, otherwise any
+            match_all : bool, optional
+                if True, all remarks must match, otherwise any {default: True}
             remarks_and_values : **kwargs
                 key : str
                     remark to match
@@ -189,8 +189,8 @@ class Docked():
 
             Parameters
             ----------
-            match_all : bool
-                if True, all remarks must match, otherwise any
+            match_all : bool, optional
+                if True, all remarks must match, otherwise any {default: True}
             remarks_and_values : **kwargs
                 key : str
                     remark to match
@@ -216,8 +216,8 @@ class Docked():
             -----------
             ndx : int
                 index of entry to remove
-            update : bool
-                update entries by decrement 'state' of same 'object'
+            update : bool, optional
+                update entries by decrement 'state' of same 'object' {default: True}
         """
         object = self.entries[ndx]['internal']['object']
         state = self.entries[ndx]['internal']['state']
@@ -238,8 +238,8 @@ class Docked():
 
             Parameters
             ----------
-            match_all : bool
-                if True, all remarks must match, otherwise any
+            match_all : bool, optional
+                if True, all remarks must match, otherwise any {default: True}
             remarks_and_values : **kwargs
                 key : str
                     remark to match
@@ -520,7 +520,7 @@ class Docked():
             filename : str
                 data output file
             format : {'csv', 'txt', None}, optional
-                file format, default is None and guessed from filename's suffix
+                file format, guessed from filename's suffix if None {default: None}
                 csv : semicolon separated data
                 txt : space separated data, with the header row preceded by '#'
         """
@@ -559,8 +559,8 @@ class Docked():
             ----------
             remark : str
                 field to use as sorting guide
-            reverse : bool
-                direction of sorting (False/True : Ascending/Descending)
+            reverse : bool, optional
+                direction of sorting (False/True : Ascending/Descending) {default: False}
         """
 
         if remark not in self.remarks:
