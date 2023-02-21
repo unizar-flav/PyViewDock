@@ -6,6 +6,7 @@
   ---------
     non_repeated_object
     set_name_catcher
+    align_to_traj
 
 """
 
@@ -62,3 +63,33 @@ def set_name_catcher(old_name, new_name, _self=cmd):
         _self.unlock(r,_self)
     if _self._raising(r,_self): raise CmdException
     return r
+
+def align_to_traj(name, mobile, target, initial_state=1, final_state=-1, source_state=1) -> None:
+    """
+        Create a new trajectory object by aligning a structure to every state of an existing trajectory
+
+        Parameters
+        ----------
+        name : str
+            name of the new trajectory object
+        mobile : str
+            name of the structure to be aligned
+        target : str
+            name of the existing trajectory object
+        initial_state : int, optional
+            initial state of the target trajectory to be aligned {default: 1}
+        final_state : int, optional
+            last state of the target trajectory to be aligned, -1 to take the last existing {default: -1}
+        source_state : int, optional
+            state of the mobile structure to be aligned {default: 1}
+    """
+    target_states = cmd.count_states(target)
+    final_state = target_states if final_state == -1 else final_state
+    states = [max(1, initial_state), min(final_state, target_states)]
+    tmp_object = non_repeated_object("tmp")
+    for n_state in range(states[0], states[1] + 1):
+        cmd.create(tmp_object, mobile, source_state=source_state)   # Create a temporary object
+        cmd.align(tmp_object, target, target_state=n_state)         # Align temporary object to the target
+        cmd.create(name, tmp_object, target_state=-1)               # Append the temporary aligned object to the final object
+        cmd.delete(tmp_object)
+    print(f" PyViewDock: \"{mobile}\" aligned to \"{target}\" and included as \"{name}\"")

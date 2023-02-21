@@ -31,7 +31,7 @@
 
 """
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 from pymol import cmd, plugins
 
@@ -43,6 +43,7 @@ cmd.extend("load_dock4", io.load_dock4)
 cmd.extend("load_pydock", io.load_pydock)
 cmd.extend("load_xyz", io.load_xyz)
 cmd.extend("export_docked_data", io.export_docked_data)
+cmd.extend("align_to_traj", misc.align_to_traj)
 # Override built-in functions -----------------------------------------
 cmd.load = io.load_ext
 cmd.extend("load", cmd.load)
