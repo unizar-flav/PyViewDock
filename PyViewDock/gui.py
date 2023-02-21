@@ -127,7 +127,8 @@ def run_gui() -> None:
 
     ##  TABLE  --------------------------------------------------------
     global headers
-    headers = headers or list(docked.headers)
+    available_headers = set(docked.remarks | {'object'})
+    headers = headers or [i for i in docked.headers if i in available_headers]
     dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
     def draw_table(headers=headers, dockings=dockings):
@@ -135,8 +136,8 @@ def run_gui() -> None:
         widget.tableDocked.clear()
         widget.tableDocked.setSortingEnabled(False)
         n_internal_columns = 3
-        # check if requested headers in remarks
-        headers = [i for i in headers if i in docked.remarks | {'object'}]
+        # check unique headers and if in remarks
+        headers = [i for i in dict.fromkeys(headers) if i in available_headers]
         # subset of entries to include based on dockings
         entries_ndx = []
         for object in dockings:
@@ -197,10 +198,11 @@ def run_gui() -> None:
 
     def toggle_all_headers():
         """Show/hide all column headers"""
-        if headers:
-            headers.clear()
-        else:
+        n_available_headers = len(available_headers) if 'object' in headers else len(available_headers) - 1
+        if len(headers) < n_available_headers:
             headers.extend(docked.remarks)
+        else:
+            headers.clear()
         draw_table()
 
     def toggle_objects():
