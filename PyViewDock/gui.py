@@ -264,7 +264,7 @@ def run_gui() -> None:
         ndx, object, state = selected()
         object_new = f"{object}-{state}"
         object_new = misc.non_repeated_object(object_new)
-        docked.copy_to_object(ndx, object_new, extract=False)
+        docked.copy_to_object(ndx, object_new, keep_docked=False, extract=False)
         cmd.disable(f"object {object_new}")
         print(f" PyViewDock: copied state {state} from \"{object}\" to \"{object_new}\"")
         refresh()

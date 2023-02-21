@@ -275,7 +275,7 @@ class Docked():
             if entry[section][remark] == old_value:
                 entry[section][remark] = new_value
 
-    def copy_to_object(self, ndx, object, extract=False) -> None:
+    def copy_to_object(self, ndx, object, keep_docked=False, extract=False) -> None:
         """
             Copy an entry to a new object
 
@@ -285,13 +285,16 @@ class Docked():
                 index of entry to copy
             object : str
                 name of the new object
-            extract : bool
-                extract the entry from the original object
+            keep_docked : bool, optional
+                keep the new entry as a docked entry {default: False}
+            extract : bool, optional
+                extract the entry from the original object {default: False}
         """
         entry = self.entries[ndx]
-        self.entries.append(deepcopy(entry))
-        self.entries[-1]['internal']['object'] = object
-        self.entries[-1]['internal']['state'] = 1
+        if keep_docked:
+            self.entries.append(deepcopy(entry))
+            self.entries[-1]['internal']['object'] = object
+            self.entries[-1]['internal']['state'] = 1
         cmd.create(object,
                    f"object {entry['internal']['object']}",
                    source_state=entry['internal']['state'],
