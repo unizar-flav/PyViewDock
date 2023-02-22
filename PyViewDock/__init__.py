@@ -24,10 +24,14 @@
   - Export docked entries data to .csv/.txt file:
         export_docked_data  filename [, format ]
 
+  - Create a new multi-state object by aligning a sigle structure
+    to every state of an existing multi-state object:
+        align_multi  name, mobile, target [, initial_state [, final_state [, source_state ]]]
 
 
+  github.com/unizar-flav/PyViewDock
   by Sergio Boneta Martinez
-  GPLv3 2022
+  GPLv3 2021-2023
 
 """
 
@@ -43,7 +47,7 @@ cmd.extend("load_dock4", io.load_dock4)
 cmd.extend("load_pydock", io.load_pydock)
 cmd.extend("load_xyz", io.load_xyz)
 cmd.extend("export_docked_data", io.export_docked_data)
-cmd.extend("align_to_traj", misc.align_to_traj)
+cmd.extend("align_multi", misc.align_multi)
 # Override built-in functions -----------------------------------------
 cmd.load = io.load_ext
 cmd.extend("load", cmd.load)

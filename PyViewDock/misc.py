@@ -6,7 +6,7 @@
   ---------
     non_repeated_object
     set_name_catcher
-    align_to_traj
+    align_multi
 
 """
 
@@ -64,24 +64,24 @@ def set_name_catcher(old_name, new_name, _self=cmd):
     if _self._raising(r,_self): raise CmdException
     return r
 
-def align_to_traj(name, mobile, target, initial_state=1, final_state=-1, source_state=1) -> None:
+def align_multi(name, mobile, target, initial_state=1, final_state=-1, source_state=1) -> None:
     """
-        Create a new trajectory object by aligning a structure to every state of an existing trajectory
+        Create a new multi-state object by aligning a single structure to every state of an existing multi-state object
 
         Parameters
         ----------
         name : str
             name of the new trajectory object
         mobile : str
-            name of the structure to be aligned
+            name of the single structure to be aligned
         target : str
-            name of the existing trajectory object
+            name of the existing multi-state object
         initial_state : int, optional
-            initial state of the target trajectory to be aligned {default: 1}
+            initial state of the target to be aligned {default: 1}
         final_state : int, optional
-            last state of the target trajectory to be aligned, -1 to take the last existing {default: -1}
+            last state of the target to be aligned, -1 to take the last existing {default: -1}
         source_state : int, optional
-            state of the mobile structure to be aligned {default: 1}
+            state of the mobile structure to be aligned (if more than one exists) {default: 1}
     """
     target_states = cmd.count_states(target)
     final_state = target_states if final_state == -1 else final_state
