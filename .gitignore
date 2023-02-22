@@ -5,5 +5,4 @@
 .vscode
 
 # release files
-PyViewDock.zip
-examples.zip
+release/**
