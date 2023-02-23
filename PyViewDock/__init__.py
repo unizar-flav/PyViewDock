@@ -24,9 +24,8 @@
   - Export docked entries data to .csv/.txt file:
         export_docked_data  filename [, format ]
 
-  - Create a new multi-state object by aligning a sigle structure
-    to every state of an existing multi-state object:
-        align_multi  name, mobile, target [, initial_state [, final_state [, source_state ]]]
+  - Align a single structure to every state of an existing multi-state object:
+        align_multi  mobile, target [, name_new [, initial_state [, final_state [, source_state ]]]]
 
 
   github.com/unizar-flav/PyViewDock

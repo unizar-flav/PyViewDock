@@ -64,18 +64,18 @@ def set_name_catcher(old_name, new_name, _self=cmd):
     if _self._raising(r,_self): raise CmdException
     return r
 
-def align_multi(name, mobile, target, initial_state=1, final_state=-1, source_state=1) -> None:
+def align_multi(mobile, target, name_new='', initial_state=1, final_state=-1, source_state=1) -> None:
     """
-        Create a new multi-state object by aligning a single structure to every state of an existing multi-state object
+        Align a single structure to every state of an existing multi-state object
 
         Parameters
         ----------
-        name : str
-            name of the new trajectory object
         mobile : str
             name of the single structure to be aligned
         target : str
             name of the existing multi-state object
+        name_new : str, optional
+            name of a new object to be created with the alignment, if not provided the mobile object will be overwritten {default: ''}
         initial_state : int, optional
             initial state of the target to be aligned {default: 1}
         final_state : int, optional
@@ -83,13 +83,19 @@ def align_multi(name, mobile, target, initial_state=1, final_state=-1, source_st
         source_state : int, optional
             state of the mobile structure to be aligned (if more than one exists) {default: 1}
     """
+    # default name_new to mobile if not provided
+    print_name = f" and included as \"{name_new}\"" if name_new else ""
+    name_new = name_new if name_new else mobile
+    # check number of states
     target_states = cmd.count_states(target)
     final_state = target_states if final_state == -1 else final_state
     states = [max(1, initial_state), min(final_state, target_states)]
+    # create a temporary object
     tmp_object = non_repeated_object("tmp")
+    cmd.create(tmp_object, mobile, source_state=source_state)
     for n_state in range(states[0], states[1] + 1):
-        cmd.create(tmp_object, mobile, source_state=source_state)   # Create a temporary object
-        cmd.align(tmp_object, target, target_state=n_state)         # Align temporary object to the target
-        cmd.create(name, tmp_object, target_state=-1)               # Append the temporary aligned object to the final object
-        cmd.delete(tmp_object)
-    print(f" PyViewDock: \"{mobile}\" aligned to \"{target}\" and included as \"{name}\"")
+        cmd.align(tmp_object, target, target_state=n_state)         # align temporary object to the target
+        cmd.create(name_new, tmp_object, target_state=n_state)      # append the temporary aligned object to the final object
+    cmd.delete(tmp_object)
+    cmd.zoom(name_new)
+    print(f" PyViewDock: \"{mobile}\" aligned to \"{target}\"" + print_name)
