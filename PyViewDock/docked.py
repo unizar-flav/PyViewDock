@@ -25,29 +25,29 @@ from . import misc
 
 
 def set_docked(docked:'Docked') -> None:
-    """
-        Set 'docked' dictionary to current session
-        from a 'Docked' object.
+    '''
+    DESCRIPTION
 
-        Parameters
-        ----------
-        docked : Docked
-            'Docked' object
-    """
+        Set 'docked' dictionary to the current session from a 'Docked' object
+
+    ARGUMENTS
+
+        docked = Docked: 'Docked' object
+    '''
     from pymol import session
     session.PyViewDock = docked.data
 
 def get_docked() -> 'Docked':
-    """
-        Get 'docked' dictionary from current session
-        or initialize a new one and return a 'Docked'
-        object from it.
+    '''
+    DESCRIPTION
 
-        Returns
-        -------
-        Docked
-            'Docked' object
-    """
+        Get 'docked' dictionary from current session or initialize a new one
+        and return a 'Docked' object from it
+
+    RETURNS
+
+        Docked: 'Docked' object
+    '''
     from pymol import session
     if not 'PyViewDock' in vars(session):
         docked = Docked()
@@ -63,33 +63,33 @@ def get_docked() -> 'Docked':
     return docked
 
 class Docked():
-    """
-        Group of docked molecules class
+    '''
+    DESCRIPTION
 
-        Parameters
-        ----------
-        session_PyViewDock : dict
-            dictionary with 'Docked' data saved
-            in the current session to be used
+        "Docked" class to store the docked structures and their REMARKs
 
-        Attributes
-        ----------
-        entries : list
-            'remarks' : dict
-                str : float / int
-            'internal' : dict
-                'object' : str
-                'state' : int
-        headers : list
+    ARGUMENTS
 
-        Properties
-        ----------
-        n_entries : int
-        entries_unified : list
-        objects : set
-        remarks : set
-        data : dict
-    """
+        session_PyViewDock = dict: dictionary with 'Docked' data saved in the current session to be used
+
+    ATTRIBUTES
+
+        entries = list
+            'remarks' = dict
+                str = float / int
+            'internal' = dict
+                'object' = str
+                'state' = int
+        headers = list
+
+    PROPERTIES
+
+        n_entries = int
+        entries_unified = list
+        objects = set
+        remarks = set
+        data = dict
+    '''
 
     version = __version__
     internal_empty = {'object':'', 'state': 0}
@@ -113,10 +113,7 @@ class Docked():
 
     @property
     def entries_unified(self) -> list:
-        """
-            Return entries as a list of a unified dictionary,
-            joining 'remarks' and 'internal'
-        """
+        '''Return entries as a list of a unified dictionary, joining 'remarks' and 'internal'''
         return [{**entry['internal'], **entry['remarks']} for entry in self.entries]
 
     @property
@@ -133,7 +130,7 @@ class Docked():
 
     @property
     def data(self) -> dict:
-        """Return docked data as a dictionary to be saved in a session"""
+        '''Return docked data as a dictionary to be saved in a session'''
         return {
             'version': self.version,
             'entries': self.entries,
@@ -141,40 +138,36 @@ class Docked():
             }
 
     def clear(self) -> None:
-        """Remove all the objects related to the class and clear it's entries"""
+        '''Remove all the objects related to the class and clear it's entries'''
         for obj in self.objects:
             cmd.delete(obj)
         self.__init__()
 
     def equalize_remarks(self) -> None:
-        """
-            Add to all entries the same remarks,
-            with None value if not previously set
-        """
+        '''Add to all entries the same remarks, with None value if not previously set'''
         all_remarks = self.remarks
         for entry in self.entries:
             for remark in all_remarks:
                 entry['remarks'].setdefault(remark, None)
 
     def findall(self, match_all=True, **remarks_and_values) -> list:
-        """
+        '''
+        DESCRIPTION
+
             Find a list of entry index that match all/any remarks
 
-            Parameters
-            ----------
-            match_all : bool, optional
-                if True, all remarks must match, otherwise any {default: True}
-            remarks_and_values : **kwargs
-                key : str
-                    remark to match
-                value : float / int / str
-                    value to match
+        ARGUMENTS
 
-            Returns
-            -------
-            list
-                list of index of entries that match
-        """
+            match_all = bool: if True, all remarks must match, otherwise any {default: True}
+
+            remarks_and_values = **kwargs:
+                key = str: remark to match
+                value = float / int / str: value to match
+
+        RETURNS
+
+            list: list of index of entries that match
+        '''
         # check input fields
         if remarks_and_values.keys() - self.remarks - {'object', 'state'}:
             raise ValueError("Not valid remark provided")
@@ -184,24 +177,23 @@ class Docked():
                 if matcher(entry[key] == value for key, value in remarks_and_values.items())]
 
     def find(self, match_all=True, **remarks_and_values) -> int:
-        """
+        '''
+        DESCRIPTION
+
             Find the index of the first entry that match all/any remarks
 
-            Parameters
-            ----------
-            match_all : bool, optional
-                if True, all remarks must match, otherwise any {default: True}
-            remarks_and_values : **kwargs
-                key : str
-                    remark to match
-                value : float / int / str
-                    value to match
+        ARGUMENTS
 
-            Returns
-            -------
-            int
-                index of entry that match, None if not found
-        """
+            match_all = bool: if True, all remarks must match, otherwise any {default: True}
+
+            remarks_and_values = **kwargs:
+                key = str: remark to match
+                value = float / int / str: value to match
+
+        RETURNS
+
+            int: index of entry that match, None if not found
+        '''
         matching_index = self.findall(match_all=match_all, **remarks_and_values)
         if matching_index:
             return matching_index[0]
@@ -209,16 +201,17 @@ class Docked():
             return None
 
     def remove_ndx(self, ndx, update=True) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Remove a stored entry and state based on index
 
-            Paramenters
-            -----------
-            ndx : int
-                index of entry to remove
-            update : bool, optional
-                update entries by decrement 'state' of same 'object' {default: True}
-        """
+        ARGUMENTS
+
+            ndx = int: index of entry to remove
+
+            update = bool: update entries by decrement 'state' of same 'object' {default: True}
+        '''
         object = self.entries[ndx]['internal']['object']
         state = self.entries[ndx]['internal']['state']
         del self.entries[ndx]
@@ -233,63 +226,63 @@ class Docked():
         cmd.delete(tmp_object)
 
     def remove(self, match_all=True, **remarks_and_values) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Remove entries that match all/any remarks
 
-            Parameters
-            ----------
-            match_all : bool, optional
-                if True, all remarks must match, otherwise any {default: True}
-            remarks_and_values : **kwargs
-                key : str
-                    remark to match
-                value : float / int / str
-                    value to match
-        """
+        ARGUMENTS
+
+            match_all = bool: if True, all remarks must match, otherwise any {default: True}
+
+            remarks_and_values = **kwargs:
+                key = str: remark to match
+                value = float / int / str: value to match
+        '''
         matching_index = self.findall(match_all=match_all, **remarks_and_values)
         for n in sorted(matching_index, reverse=True):
             self.remove_ndx(n)
 
     def remove_without_objects(self) -> None:
-        """
-            Delete the entries without object in PyMOL
-        """
+        '''Delete the entries without object in PyMOL'''
         for object_to_remove in self.objects - set(cmd.get_names('objects')):
             self.remove(object=object_to_remove)
 
     def modify_entries(self, remark, old_value, new_value) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Change values of a remark of all entries that matches the old value
 
-            Parameters
-            ----------
-            remark : str
-                remark to change, special treatment for 'object' and 'state'
-            old_value : float / int / str
-                current value of the remark to match and change
-            new_value : float / int / str
-                new value for the remark
-        """
+        ARGUMENTS
+
+            remark = str: remark to change, special treatment for 'object' and 'state'
+
+            old_value = float / int / str: current value of the remark to match and change
+
+            new_value = float / int / str: new value for the remark
+        '''
         section = 'internal' if remark in ['object', 'state'] else 'remarks'
         for entry in self.entries:
             if entry[section][remark] == old_value:
                 entry[section][remark] = new_value
 
     def copy_to_object(self, ndx, object, keep_docked=False, extract=False) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Copy an entry to a new object
 
-            Parameters
-            ----------
-            ndx : int
-                index of entry to copy
-            object : str
-                name of the new object
-            keep_docked : bool, optional
-                keep the new entry as a docked entry {default: False}
-            extract : bool, optional
-                extract the entry from the original object {default: False}
-        """
+        ARGUMENTS
+
+            ndx = int: index of entry to copy
+
+            object = str: name of the new object
+
+            keep_docked = bool: keep the new entry as a docked entry {default: False}
+
+            extract = bool: extract the entry from the original object {default: False}
+        '''
         entry = self.entries[ndx]
         if keep_docked:
             self.entries.append(deepcopy(entry))
@@ -306,20 +299,22 @@ class Docked():
             self.remove_ndx(ndx)
 
     def load_dock4(self, cluster, object, mode) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Load a SwissDock's cluster of ligands from string list in PDB >Dock4 format
 
-            Parameters
-            ----------
-            cluster : list of str
-                list of string lines from cluster of structures in PDB format
-            object : str
-                name to be include the new object
-            mode : {0, 1, 2}
-                0 - all molecules to same object
+        ARGUMENTS
+
+            cluster = list of str: list of string lines from cluster of structures in PDB format
+
+            object = str: name to be include the new object
+
+            mode = 0/1/2:
+                0 - all molecules to same object {default}
                 1 - only first molecule of each cluster to object (ClusterRank==0)
                 2 - all molecules to multiple objects according to clusters
-        """
+        '''
 
         cluster = [line.strip() for line in cluster if line.strip()]
 
@@ -401,19 +396,20 @@ class Docked():
         self.equalize_remarks()
 
     def load_pydock(self, filename, object, max_n) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Load a PyDock's group of structures as an object
             with multiple states and read the docking information
 
-            Parameters
-            ----------
-            filename : str
-                energy resume file (.ene / .eneRST)
-            object : str
-                basename to include the new objects (_rec / _lig)
-            max_n : int
-                maximum number of structures to load
-        """
+        ARGUMENTS
+
+            filename = str: energy resume file (.ene / .eneRST)
+
+            object = str: basename to include the new objects (_rec / _lig)
+
+            max_n = int: maximum number of structures to load
+        '''
 
         rec_obj = object+"_rec"
         lig_obj = object+"_lig"
@@ -474,17 +470,18 @@ class Docked():
         cmd.remove(f"{lig_obj} in {rec_obj}")
 
     def load_xyz(self, filename, object) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Load a group of structures as an object from .xyz
             with multiple states and docking information
 
-            Parameters
-            ----------
-            filename : str
-                coordinates file (.xyz)
-            object : str
-                name to be include the new object
-        """
+        ARGUMENTS
+
+            filename = str: coordinates file (.xyz)
+
+            object = str: name to be include the new object
+        '''
 
         # read comments from xyz file
         with open(filename, 'rt') as f:
@@ -512,18 +509,19 @@ class Docked():
         importing.load(filename, object=object, format='xyz', quiet=1)
 
     def export_data(self, filename, format=None) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Save file containing docked data of all entries
 
-            Parameters
-            ----------
-            filename : str
-                data output file
-            format : {'csv', 'txt', None}, optional
-                file format, guessed from filename's suffix if None {default: None}
+        ARGUMENTS
+
+            filename = str: data output file
+
+            format = str: file format, guessed from filename's suffix if None {default: None}
                 csv : semicolon separated data
                 txt : space separated data, with the header row preceded by '#'
-        """
+        '''
 
         if self.n_entries == 0:
             raise CmdException("No docked entries found to export.", "PyViewDock")
@@ -552,18 +550,17 @@ class Docked():
         print(f" PyViewDock: Data exported to \"{filename}\" as \"{format}\".")
 
     def sort(self, remark, reverse=False) -> None:
-        """
+        '''
+        DESCRIPTION
+
             Sort entries according to values of 'remark'
 
-            Parameters
-            ----------
-            remark : str
-                field to use as sorting guide
-            reverse : bool, optional
-                direction of sorting (False/True : Ascending/Descending) {default: False}
-        """
+        ARGUMENTS
 
+            remark = str: field to use as sorting guide
+
+            reverse = bool: direction of sorting (False/True : Ascending/Descending) {default: False}
+        '''
         if remark not in self.remarks:
             raise ValueError("Unkown 'remark' to sort by")
-
         self.entries = sorted(self.entries, key=lambda k: k['remarks'][remark], reverse=reverse)

@@ -21,7 +21,7 @@ from .docked import get_docked
 headers = []
 
 def run_gui() -> None:
-    """Main PyViewDock dialog window"""
+    '''Main PyViewDock dialog window'''
 
     docked = get_docked()
 
@@ -64,12 +64,12 @@ def run_gui() -> None:
 
     ##  I/O FILES  ----------------------------------------------------
     def clear_all():
-        """Clear all the docked entries"""
+        '''Clear all the docked entries'''
         docked.clear()
         draw_table()
 
     def browse_open():
-        """Callback for the 'Open' button"""
+        '''Callback for the 'Open' button'''
         supported_formats = {'PDB Dock >4 (*.pdb; *.zip)': io.load_dock4,
                              'ChimeraX (*.chimerax)': io.load_chimerax,
                              'pyDock (*.ene; *.eneRST)': io.load_pydock,
@@ -104,7 +104,7 @@ def run_gui() -> None:
         include_docking(new_object)
 
     def browse_export_data():
-        """Callback for the 'Export Data' button"""
+        '''Callback for the 'Export Data' button'''
         supported_formats = {'CSV (*.csv)': 'csv',
                              'Text (*.txt)': 'txt',
                              'All Files(*)': None}
@@ -132,7 +132,7 @@ def run_gui() -> None:
     dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
     def draw_table(headers=headers, dockings=dockings):
-        """Fill the whole table with data from docked entries"""
+        '''Fill the whole table with data from docked entries'''
         widget.tableDocked.clear()
         widget.tableDocked.setSortingEnabled(False)
         n_internal_columns = 3
@@ -187,17 +187,17 @@ def run_gui() -> None:
         widget.tableDocked.show()
 
     def show_header(header):
-        """Add a column to headers"""
+        '''Add a column to headers'''
         headers.append(header)
         draw_table()
 
     def hide_header(header):
-        """Remove a column from headers"""
+        '''Remove a column from headers'''
         headers.remove(header)
         draw_table()
 
     def toggle_all_headers():
-        """Show/hide all column headers"""
+        '''Show/hide all column headers'''
         n_available_headers = len(available_headers) if 'object' in headers else len(available_headers) - 1
         if len(headers) < n_available_headers:
             headers.extend(docked.remarks)
@@ -206,7 +206,7 @@ def run_gui() -> None:
         draw_table()
 
     def toggle_objects():
-        """Show/hide objects column"""
+        '''Show/hide objects column'''
         if 'object' in headers:
             headers.remove('object')
         else:
@@ -214,17 +214,17 @@ def run_gui() -> None:
         draw_table()
 
     def include_docking(docking):
-        """Include docking object to table"""
+        '''Include docking object to table'''
         dockings.append(docking)
         draw_table()
 
     def exclude_docking(docking):
-        """Exclude docking object from table"""
+        '''Exclude docking object from table'''
         dockings.remove(docking)
         draw_table()
 
     def selected() -> list:
-        """Return selected index, object and state"""
+        '''Return selected index, object and state'''
         selected_row = widget.tableDocked.selectedItems()
         if selected_row:
             row_n = selected_row[0].row()
@@ -236,7 +236,7 @@ def run_gui() -> None:
             return []
 
     def display_selected():
-        """Display entries corresponding to selected rows"""
+        '''Display entries corresponding to selected rows'''
         #TODO: multiple selection
         selected_row = selected()
         if selected_row:
@@ -248,7 +248,7 @@ def run_gui() -> None:
 
     ##  RIGHT CLICK MENU  ---------------------------------------------
     def right_click():
-        """Context menu for right click on a table element"""
+        '''Context menu for right click on a table element'''
         selected_row = selected()
         if selected_row:
             ndx, object, state = selected_row
@@ -262,7 +262,7 @@ def run_gui() -> None:
             menu.exec_(QtGui.QCursor.pos())
 
     def rc_copy_to_new_object():
-        """Copy the selected entry to a new object"""
+        '''Copy the selected entry to a new object'''
         ndx, object, state = selected()
         object_new = f"{object}-{state}"
         object_new = misc.non_repeated_object(object_new)
@@ -272,7 +272,7 @@ def run_gui() -> None:
         refresh()
 
     def rc_delete():
-        """Delete the selected entry"""
+        '''Delete the selected entry'''
         ndx, object, state = selected()
         docked.remove_ndx(ndx)
         print(f" PyViewDock: deleted state {state} from \"{object}\"")
@@ -281,7 +281,7 @@ def run_gui() -> None:
 
     ##  MISC FUNCTIONS  -----------------------------------------------
     def refresh():
-        """Refresh the entries and table"""
+        '''Refresh the entries and table'''
         docked.remove_without_objects()
         draw_table()
 

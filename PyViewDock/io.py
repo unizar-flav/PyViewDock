@@ -17,6 +17,7 @@ import os
 import re
 import xml.etree.ElementTree as ET
 import zipfile
+from textwrap import dedent
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
@@ -27,23 +28,39 @@ from .docked import Docked, get_docked
 
 
 def load_dock4(filename, object='', mode=0) -> None:
-    """
-        Load a SwissDock's cluster of ligands as an object
+    '''
+    DESCRIPTION
+
+        "load_dock4" loads a SwissDock's cluster of ligands as an object
         with multiple states and read the docking information
 
-        Parameters
-        ----------
-        filename : str
-            cluster of structures in PDB format
-            or zip file containing a .dock4.pdb file
-        object : str
-            name to be include the new object
-            if absent, taken from filename
-        mode : {0, 1, 2}
-            0 - all molecules to same object
-            1 - only first molecule of each cluster to object
+    USAGE
+
+        load_dock4  filename [, object [, mode ]]
+
+    ARGUMENTS
+
+        filename = string: cluster of structures in PDB format
+                           or zip file containing a .dock4.pdb file
+
+        object = string: name to be include the new object
+                         if absent, taken from filename
+
+        mode = 0/1/2:
+            0 - all molecules to same object {default}
+            1 - only first molecule of each cluster to object (ClusterRank==0)
             2 - all molecules to multiple objects according to clusters
-    """
+
+    EXAMPLES
+
+        load_dock4  cluster.dock4.pdb
+        load_dock4  cluster.dock4.zip, clusters
+        load_dock4  cluster.dock4.zip, clusters, 2
+
+    SEE ALSO
+
+        load, load_chimerax, load_pydock, load_xyz
+    '''
 
     docked = get_docked()
 
@@ -68,14 +85,27 @@ def load_dock4(filename, object='', mode=0) -> None:
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
 def load_chimerax(filename) -> None:
-    """
-        Load a UCSF ChimeraX file written by SwissDock
+    '''
+    DESCRIPTION
 
-        Parameters
-        ----------
-        filename : str
-            chimerax file (XML file with URL of target and ligands cluster)
-    """
+        "load_chimerax" loads a UCSF ChimeraX file written by SwissDock
+
+    USAGE
+
+        load_chimerax  filename
+
+    ARGUMENTS
+
+        filename = string: chimerax file (XML file with URL of target and ligands cluster)
+
+    EXAMPLES
+
+        load_chimerax  cluster.chimerax
+
+    SEE ALSO
+
+        load, load_dock4, load_pydock, load_xyz
+    '''
 
     # UCSF Chimera Web Data Format
     # www.cgl.ucsf.edu/chimera/docs/ContributedSoftware/webdata/chimerax.html
@@ -121,25 +151,35 @@ def load_chimerax(filename) -> None:
                 load_dock4(cluster_file, clusters_object, 0)
 
 def load_pydock(filename, object='', max_n=100) -> None:
-    """
-        Load a PyDock's group of structures as an object
+    '''
+    DESCRIPTION
+
+        "load_pydock" loads a PyDock's group of structures as an object
         with multiple states and read the docking information
 
-        The energy resume file is read and the corresponding
-        structures are taken from PDB files in the same folder
-        based on the pattern NAME_NUMBER.pdb
-        _rec.pdb and _lig.pdb are also necessary
+    USAGE
 
-        Parameters
-        ----------
-        filename : str
-            energy resume file (.ene / .eneRST)
-        object : str, optional
-            basename to include the new objects (_rec / _lig)
-            if absent, taken from filename
-        max_n : int
-            maximum number of structures to load
-    """
+        load_pydock  filename [, object [, max_n ]]
+
+    ARGUMENTS
+
+        filename = string: energy resume file (.ene / .eneRST)
+
+        object = string: basename to include the new objects (_rec / _lig)
+                         if absent, taken from filename
+
+        max_n = integer: maximum number of structures to load {default: 100}
+
+    EXAMPLES
+
+        load_pydock  dock.ene
+        load_pydock  dock.eneRST
+        load_pydock  dock.eneRST, docked, 100
+
+    SEE ALSO
+
+        load, load_chimerax, load_dock4, load_xyz
+    '''
 
     docked = get_docked()
 
@@ -151,17 +191,32 @@ def load_pydock(filename, object='', max_n=100) -> None:
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
 def load_xyz(filename, object='') -> None:
-    """
-        Load a group of structures as an object from .xyz
+    '''
+    DESCRIPTION
+
+        "load_xyz" loads a group of structures as an object from .xyz
         with multiple states and docking information
 
-        Parameters
-        ----------
-        filename : str
-            coordinates file (.xyz)
-        object : str
-            name to be include the new object
-    """
+    USAGE
+
+        load_xyz  filename [, object ]
+
+    ARGUMENTS
+
+        filename = string: coordinates file (.xyz)
+
+        object = string: name to be include the new object
+                         if absent, taken from filename
+
+    EXAMPLES
+
+        load_xyz  dock.xyz
+        load_xyz  dock.xyz, docked
+
+    SEE ALSO
+
+        load, load_chimerax, load_dock4, load_pydock
+    '''
 
     docked = get_docked()
 
@@ -173,18 +228,29 @@ def load_xyz(filename, object='') -> None:
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
 def export_docked_data(filename, format='') -> None:
-    """
-        Save file containing docked data of all entries
+    '''
+    DESCRIPTION
 
-        Parameters
-        ----------
-        filename : str
-            data output file
-        format : {'csv', 'txt'}, optional
-            file format, default guessed from filename's suffix with fallback to 'csv'
-            csv : semicolon separated data
-            txt : space separated data, with the header row preceded by '#'
-    """
+        "export_docked_data" saves a file containing docked data of all entries
+
+    USAGE
+
+        export_docked_data  filename [, format ]
+
+    ARGUMENTS
+
+        filename = string: data output file
+
+        format = string: file format, guessed from filename's suffix with fallback to default
+                         csv : semicolon separated data {default}
+                         txt : space separated data, with the header row preceded by '#'
+
+    EXAMPLES
+
+        export_docked_data  docked.csv
+        export_docked_data  docked.txt
+        export_docked_data  docked, txt
+    '''
 
     docked = get_docked()
 
@@ -197,16 +263,17 @@ def export_docked_data(filename, format='') -> None:
 def load_ext(filename, object='', state=0, format='', finish=1,
              discrete=-1, quiet=1, multiplex=None, zoom=-1, partial=0,
              mimic=1, object_props=None, atom_props=None, *, _self=cmd):
-    """
-        Wrapper to load function with extended funtionality
+    '''
+    REMARK
 
-        Formats
-        -------
+        This is a wrapper by PyViewDock to the original "load" function
+        with extended funtionality for docking file formats.
+
         .chimerax
             XML file with URL of target and ligands cluster
         .ene / .eneRST
             energy table with reference numbers of structures from pyDock
-    """
+    '''
 
     if not format:
         file_dot_separated = os.path.basename(filename).rpartition('.')
@@ -225,3 +292,5 @@ def load_ext(filename, object='', state=0, format='', finish=1,
     else:
         importing.load(filename, object, state, format, finish,
                         discrete, quiet, multiplex, zoom, partial)
+
+load_ext.__doc__ = importing.load.__doc__ + dedent(load_ext.__doc__)
