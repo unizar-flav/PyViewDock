@@ -105,9 +105,10 @@ def align_multi(mobile, target, name_new='', initial_state=1, final_state=-1, so
 
         source_state = integer: state of the mobile structure to be aligned (if more than one exists) {default: 1}
 
-    EXAMPLE
+    EXAMPLES
 
-        align_multi lig, result_lig, lig1_aligned
+        align_multi lig_ref, result_lig
+        align_multi lig_ref, result_lig, lig_ref_aligned
     '''
     # default name_new to mobile if not provided
     print_name = f" and included as \"{name_new}\"" if name_new else ""
@@ -125,3 +126,7 @@ def align_multi(mobile, target, name_new='', initial_state=1, final_state=-1, so
     cmd.delete(tmp_object)
     cmd.zoom(name_new)
     print(f" PyViewDock: \"{mobile}\" aligned to \"{target}\"" + print_name)
+
+cmd.auto_arg[0]['align_multi'] = [cmd.object_sc, 'mobile object', ', ']
+cmd.auto_arg[1]['align_multi'] = [cmd.object_sc, 'target object', ', ']
+cmd.auto_arg[2]['align_multi'] = [cmd.object_sc, 'new object', ', ']

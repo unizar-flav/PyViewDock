@@ -17,6 +17,7 @@ import os
 import re
 import xml.etree.ElementTree as ET
 import zipfile
+from glob import glob
 from textwrap import dedent
 from urllib.error import HTTPError
 from urllib.request import urlopen
@@ -83,6 +84,9 @@ def load_dock4(filename, object='', mode=0) -> None:
 
     docked.load_dock4(cluster, object, mode)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
+
+cmd.auto_arg[0]['load_dock4'] = [lambda: cmd.Shortcut(glob('*.pdb') + glob('*.zip')), 'filename', ', ']
+cmd.auto_arg[1]['load_dock4'] = [cmd.object_sc, 'object', '']
 
 def load_chimerax(filename) -> None:
     '''
@@ -190,6 +194,9 @@ def load_pydock(filename, object='', max_n=100) -> None:
     docked.load_pydock(filename, object, max_n)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
+cmd.auto_arg[0]['load_pydock'] = [lambda: cmd.Shortcut(glob('*.ene') + glob('*.eneRST')), 'filename', ', ']
+cmd.auto_arg[1]['load_pydock'] = [cmd.object_sc, 'object', ', ']
+
 def load_xyz(filename, object='') -> None:
     '''
     DESCRIPTION
@@ -227,6 +234,9 @@ def load_xyz(filename, object='') -> None:
     docked.load_xyz(filename, object)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
+cmd.auto_arg[0]['load_xyz'] = [lambda: cmd.Shortcut(glob('*.xyz')), 'filename', ', ']
+cmd.auto_arg[1]['load_xyz'] = [cmd.object_sc, 'object', '']
+
 def export_docked_data(filename, format='') -> None:
     '''
     DESCRIPTION
@@ -259,6 +269,9 @@ def export_docked_data(filename, format='') -> None:
         format = suffix if suffix in {'csv', 'txt'} else 'csv'
 
     docked.export_data(filename, format)
+
+cmd.auto_arg[0]['export_docked_data'] = [lambda: cmd.Shortcut(glob('*.csv') + glob('*.txt')), 'filename', ', ']
+cmd.auto_arg[1]['export_docked_data'] = [lambda: cmd.Shortcut(['csv', 'txt']), 'format', '']
 
 def load_ext(filename, object='', state=0, format='', finish=1,
              discrete=-1, quiet=1, multiplex=None, zoom=-1, partial=0,
