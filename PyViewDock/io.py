@@ -154,6 +154,8 @@ def load_chimerax(filename) -> None:
                 importing.load(target_file, target_object)
                 load_dock4(cluster_file, clusters_object, 0)
 
+cmd.auto_arg[0]['load_chimerax'] = [lambda: cmd.Shortcut(glob('*.chimerax')), 'filename', '']
+
 def load_pydock(filename, object='', max_n=100) -> None:
     '''
     DESCRIPTION
@@ -189,7 +191,6 @@ def load_pydock(filename, object='', max_n=100) -> None:
 
     if not object:
         object = os.path.basename(filename).split('.')[0]
-    object = misc.non_repeated_object(object)
 
     docked.load_pydock(filename, object, max_n)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")

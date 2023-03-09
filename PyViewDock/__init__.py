@@ -15,6 +15,9 @@
   - Load cluster of docking ligands in Dock 4+ PDB format:
         load_dock4  filename [, object [, mode ]]
 
+  - Load SwissDock's .chimerax file:
+        load_chimerax  filename [, object ]
+
   - Load pyDock's .ene/.eneRST file:
         load_pydock  filename [, object [, max_n ]]
 
@@ -43,6 +46,7 @@ from . import gui, io, misc
 
 ##  PYMOL FUNCTIONS  ##################################################
 cmd.extend("load_dock4", io.load_dock4)
+cmd.extend("load_chimerax", io.load_chimerax)
 cmd.extend("load_pydock", io.load_pydock)
 cmd.extend("load_xyz", io.load_xyz)
 cmd.extend("export_docked_data", io.export_docked_data)

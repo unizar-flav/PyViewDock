@@ -60,6 +60,9 @@ A table will appear with information for every docking entry. It can be column-s
   - Load cluster of docked ligands in PDB format (Dock 4+): \
       `load_dock4  filename [, object [, mode ]]`
 
+  - Load SwissDock's .chimerax file:
+      `load_chimerax  filename [, object ]`
+
   - Load pyDock's .ene/.eneRST file: \
       `load_pydock  filename [, object [, max_n ]]`
 
