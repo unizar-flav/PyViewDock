@@ -13,10 +13,10 @@
 
 """
 
-import glob
 import os
 import re
 from copy import deepcopy
+from glob import glob
 
 from pymol import cmd, importing, CmdException
 
@@ -411,14 +411,13 @@ class Docked():
             max_n = int: maximum number of structures to load
         '''
 
-        rec_obj = object+"_rec"
-        lig_obj = object+"_lig"
+        rec_obj = misc.non_repeated_object(object+"_rec")
+        lig_obj = misc.non_repeated_object(object+"_lig")
 
-        basename = os.path.basename(filename).split('.')[0]
         directory = os.path.dirname(os.path.realpath(filename))
 
         # get list of matching pdb files
-        pdb_files = glob.glob(os.path.join(directory, "*.pdb"))
+        pdb_files = glob(os.path.join(directory, "*.pdb"))
 
         # find receptor and ligand files
         try:
