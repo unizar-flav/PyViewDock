@@ -13,6 +13,8 @@ Obviously inspired from the original [Chimera's View-Dock](https://www.cgl.ucsf.
 
 ### Supported formats with software/server results
 
+* [AutoDock Vina](https://autodock-vina.readthedocs.io) \
+    .pdbqt
 * [Swiss-Dock](http://www.swissdock.ch/) \
     .chimerax / .pdb in Dock 4+ format
 * [pyDock](https://life.bsc.es/pid/pydock/) \
@@ -54,13 +56,17 @@ A table will appear with information for every docking entry. It can be column-s
 #### PyMOL command line
 
   - Enriched built-in `load` function (also as drag-and-drop):
+      * .pdbqt
       * .chimerax
       * .ene/.eneRST
+
+  - Load PDBQT file (AutoDock Vina): \
+      `load_pdbqt  filename [, object ]`
 
   - Load cluster of docked ligands in PDB format (Dock 4+): \
       `load_dock4  filename [, object [, mode ]]`
 
-  - Load SwissDock's .chimerax file:
+  - Load SwissDock's .chimerax file: \
       `load_chimerax  filename [, object ]`
 
   - Load pyDock's .ene/.eneRST file: \

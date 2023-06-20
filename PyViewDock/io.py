@@ -28,6 +28,43 @@ from . import misc
 from .docked import Docked, get_docked
 
 
+def load_pdbqt(filename, object='') -> None:
+    '''
+    DESCRIPTION
+
+        "load_pdbqt" loads an AutoDock Vina's PDBQT file as an object
+        with multiple ligand poses and docking information
+
+    USAGE
+
+        load_pdbqt  filename [, object ]
+
+    ARGUMENTS
+
+        filename = string: structures in PDBQT format (.pdbqt)
+
+        object = string: name to be include the new object
+                         if absent, taken from filename
+
+    EXAMPLES
+
+        load_pdbqt  docking_result.pdbqt
+        load_pdbqt  docking_restul.pdbqt, docking_01
+
+    SEE ALSO
+
+        load, load_chimerax, load_dock4, load_pydock, load_xyz
+    '''
+
+    docked = get_docked()
+
+    if not object:
+        object = os.path.basename(filename).split('.')[0]
+    object = misc.non_repeated_object(object)
+
+    docked.load_pdbqt(filename, object)
+    print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
+
 def load_dock4(filename, object='', mode=0) -> None:
     '''
     DESCRIPTION
@@ -60,7 +97,7 @@ def load_dock4(filename, object='', mode=0) -> None:
 
     SEE ALSO
 
-        load, load_chimerax, load_pydock, load_xyz
+        load, load_pdbqt, load_chimerax, load_pydock, load_xyz
     '''
 
     docked = get_docked()
@@ -108,7 +145,7 @@ def load_chimerax(filename) -> None:
 
     SEE ALSO
 
-        load, load_dock4, load_pydock, load_xyz
+        load, load_pdbqt, load_dock4, load_pydock, load_xyz
     '''
 
     # UCSF Chimera Web Data Format
@@ -184,7 +221,7 @@ def load_pydock(filename, object='', max_n=100) -> None:
 
     SEE ALSO
 
-        load, load_chimerax, load_dock4, load_xyz
+        load, load_pdbqt, load_chimerax, load_dock4, load_xyz
     '''
 
     docked = get_docked()
@@ -223,7 +260,7 @@ def load_xyz(filename, object='') -> None:
 
     SEE ALSO
 
-        load, load_chimerax, load_dock4, load_pydock
+        load, load_pdbqt, load_chimerax, load_dock4, load_pydock
     '''
 
     docked = get_docked()
@@ -284,9 +321,11 @@ def load_ext(filename, object='', state=0, format='', finish=1,
         with extended funtionality for docking file formats.
 
         .chimerax
-            XML file with URL of target and ligands cluster
+            XML file with URL of target and ligands cluster from SwissDock
         .ene / .eneRST
             energy table with reference numbers of structures from pyDock
+        .pdbqt
+            PDBQT file with docking information from AutoDock Vina
     '''
 
     if not format:
@@ -301,6 +340,10 @@ def load_ext(filename, object='', state=0, format='', finish=1,
     # pyDock
     elif format.lower() in ("ene", "enerst"):
         load_pydock(filename, name)
+
+    # PDBQT
+    elif format.lower() == "pdbqt":
+        load_pdbqt(filename, name)
 
     # original load function
     else:

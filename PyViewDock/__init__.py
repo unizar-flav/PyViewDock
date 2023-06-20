@@ -9,8 +9,12 @@
 
 
   Enriched built-in 'load' function (also as drag-and-drop):
-      * SwissDock's .chimerax
-      * pyDock's .ene/.eneRST
+      * .pdbqt  -  from AutoDock Vina
+      * .chimerax  -  from SwissDock
+      * .ene/.eneRST  -  from pyDock
+
+  - Load PDBQT file (AutoDock Vina):
+        load_pdbqt  filename [, object ]
 
   - Load cluster of docking ligands in Dock 4+ PDB format:
         load_dock4  filename [, object [, mode ]]
@@ -45,6 +49,7 @@ from . import gui, io, misc
 
 
 ##  PYMOL FUNCTIONS  ##################################################
+cmd.extend("load_pdbqt", io.load_pdbqt)
 cmd.extend("load_dock4", io.load_dock4)
 cmd.extend("load_chimerax", io.load_chimerax)
 cmd.extend("load_pydock", io.load_pydock)

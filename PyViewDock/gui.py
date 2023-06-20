@@ -70,16 +70,20 @@ def run_gui() -> None:
 
     def browse_open():
         '''Callback for the 'Open' button'''
-        supported_formats = {'PDB Dock >4 (*.pdb; *.zip)': io.load_dock4,
-                             'ChimeraX (*.chimerax)': io.load_chimerax,
-                             'pyDock (*.ene; *.eneRST)': io.load_pydock,
-                             'XYZ (*.xyz)': io.load_xyz,
-                             'All Files(*)': None}
-        default_suffix_format = {'pdb': 'PDB Dock >4 (*.pdb)',
-                                 'chimerax': 'ChimeraX (*.chimerax)',
-                                 'ene': 'pyDock (*.ene; *.eneRST)',
-                                 'enerst': 'pyDock (*.ene; *.eneRST)',
-                                 'xyz': 'XYZ (*.xyz)'}
+        supported_formats = {
+            'PDBQT (*.pdbqt)': io.load_pdbqt,
+            'PDB Dock >4 (*.pdb; *.zip)': io.load_dock4,
+            'ChimeraX (*.chimerax)': io.load_chimerax,
+            'pyDock (*.ene; *.eneRST)': io.load_pydock,
+            'XYZ (*.xyz)': io.load_xyz,
+            'All Files(*)': None}
+        default_suffix_format = {
+            'pdbqt': 'PDBQT (*.pdbqt)',
+            'pdb': 'PDB Dock >4 (*.pdb)',
+            'chimerax': 'ChimeraX (*.chimerax)',
+            'ene': 'pyDock (*.ene; *.eneRST)',
+            'enerst': 'pyDock (*.ene; *.eneRST)',
+            'xyz': 'XYZ (*.xyz)'}
         # launch open file dialog from system
         filename, format_selected = QtWidgets.QFileDialog.getOpenFileName(parent=dialog,
                                                                           caption='Open file containing docked structures',

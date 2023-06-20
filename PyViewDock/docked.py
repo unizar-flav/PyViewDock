@@ -94,14 +94,17 @@ class Docked():
     version = __version__
     internal_empty = {'object':'', 'state': 0}
 
+    headers_default = {
+        'AutoDock-Vina': ['MODEL', 'affinity', 'RMSD l.b.', 'RMSD u.b.', 'ITER + INTRA', 'INTER', 'INTRA', 'CONF_INDEPENDENT', 'UNBOUND', 'Flexibility Score'],
+        'Swiss-Dock': ['Cluster', 'ClusterRank', 'deltaG'],
+        'pyDock': ['RANK', 'Total'],
+        'generic': ['structure', 'value']
+        }
+
     def __init__(self, session_PyViewDock:dict=None) -> None:
         self.entries = []       # list of dict for every docked entry
         # default table headers
-        self.headers = [
-                        'Cluster', 'ClusterRank', 'deltaG',     # Swiss-Dock
-                        'RANK', 'Total',                        # pyDock
-                        'structure', 'value'                    # generic
-                        ]
+        self.headers = [header for headers in self.headers_default.values() for header in headers]
         if session_PyViewDock:
             self.entries = session_PyViewDock['entries']
             self.headers = session_PyViewDock['headers']
@@ -297,6 +300,64 @@ class Docked():
                    extract=False)
         if extract:
             self.remove_ndx(ndx)
+
+    def load_pdbqt(self, file, object) -> None:
+        '''
+        DESCRIPTION
+
+            Load an AutoDock Vina's PDBQT file with multiple ligand poses
+
+        ARGUMENTS
+
+            file = str: path to file to load
+
+            object = str: name to be include the new object
+        '''
+
+        #TODO: implement 'vina_split'
+
+        with open(file, 'r') as f:
+            pdbqt = [line.strip() for line in f.readlines() if line.strip()]
+
+        # split into poses (starts with MODEL) and read remarks
+        remarks = []
+        remark = dict()
+        poses = []
+        pose = []
+        for line in pdbqt:
+            if line.startswith('MODEL'):
+                if pose:
+                    poses.append(pose)
+                    remarks.append(remark)
+                pose = []
+                remark = dict()
+                remark['MODEL'] = int(line.split()[1])
+            elif line.startswith('REMARK'):
+                line = line.split('REMARK')[1].strip()
+                for autodock_remark in self.headers_default['AutoDock-Vina']:
+                    if line.startswith('VINA RESULT:'):
+                        values = line.split(':')[1].split()
+                        remark['affinity'] = float(values[0])
+                        remark['RMSD l.b.'] = float(values[1])
+                        remark['RMSD u.b.'] = float(values[2])
+                    elif line.startswith(autodock_remark):
+                        value = line.split(':')[1].strip()
+                        if value.isdigit():
+                            value = float(value)
+                        remark[autodock_remark] = value
+            pose.append(line)
+        poses.append(pose)
+        remarks.append(remark)
+
+        # load structures
+        entries = []
+        for n, (pose, remark) in enumerate(zip(poses, remarks)):
+            cmd.read_pdbstr('\n'.join(pose), object)
+            cmd.show_as('sticks', object)
+            entries.append({'internal': {'object': object, 'state': n + 1}, 'remarks': remark})
+
+        self.entries.extend(entries)
+        self.equalize_remarks()
 
     def load_dock4(self, cluster, object, mode) -> None:
         '''
