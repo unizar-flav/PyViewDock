@@ -218,15 +218,16 @@ class Docked():
         object = self.entries[ndx]['internal']['object']
         state = self.entries[ndx]['internal']['state']
         del self.entries[ndx]
-        tmp_object = misc.non_repeated_object("tmp")
-        cmd.create(tmp_object, f"object {object}", zoom=0, quiet=1)
-        cmd.delete(object)
-        for entry in [self.entries[n] for n in self.findall(object=object)]:
-            entry_state = entry['internal']['state']
-            cmd.create(object, f"object {tmp_object}", source_state=entry_state, target_state=-1, zoom=0, quiet=1, extract=None)
-            if update:
-                entry['internal']['state'] -= int(entry_state > state)
-        cmd.delete(tmp_object)
+        if object in cmd.get_names('objects'):
+            tmp_object = misc.non_repeated_object("tmp")
+            cmd.create(tmp_object, f"object {object}", zoom=0, quiet=1)
+            cmd.delete(object)
+            for entry in [self.entries[n] for n in self.findall(object=object)]:
+                entry_state = entry['internal']['state']
+                cmd.create(object, f"object {tmp_object}", source_state=entry_state, target_state=-1, zoom=0, quiet=1, extract=None)
+                if update:
+                    entry['internal']['state'] -= int(entry_state > state)
+            cmd.delete(tmp_object)
 
     def remove(self, match_all=True, **remarks_and_values) -> None:
         '''
