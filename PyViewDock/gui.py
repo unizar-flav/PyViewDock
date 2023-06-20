@@ -58,8 +58,8 @@ def run_gui() -> None:
     include_docking_menu = widget.menuDockings.addMenu('Include')
     exclude_docking_menu = widget.menuDockings.addMenu('Exclude')
     # refresh button
-    refresh_button = widget.menubar.addAction('buttonRefresh')
-    refresh_button.setText("🗘")
+    # refresh_button = widget.menubar.addAction('buttonRefresh')
+    # refresh_button.setText("🗘")
 
 
     ##  I/O FILES  ----------------------------------------------------
@@ -297,7 +297,7 @@ def run_gui() -> None:
     widget.buttonClearAll.triggered.connect(clear_all)
     toggle_columns_button.triggered.connect(toggle_all_headers)
     toggle_objects_button.triggered.connect(toggle_objects)
-    refresh_button.triggered.connect(refresh)
+    # refresh_button.triggered.connect(refresh)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
     widget.tableDocked.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
     widget.tableDocked.customContextMenuRequested.connect(right_click)
