@@ -148,6 +148,7 @@ class Docked():
 
     def equalize_remarks(self) -> None:
         '''Add to all entries the same remarks, with None value if not previously set'''
+        self.remove_without_objects()
         all_remarks = self.remarks
         for entry in self.entries:
             for remark in all_remarks:
@@ -524,11 +525,11 @@ class Docked():
         for i in reversed(range(len(entries))):
             if i not in loaded: del entries[i]
 
-        self.entries.extend(entries)
-        self.equalize_remarks()
-
         # remove atoms of receptor from ligand
         cmd.remove(f"{lig_obj} in {rec_obj}")
+        
+        self.entries.extend(entries)
+        self.equalize_remarks()
 
     def load_xyz(self, filename, object) -> None:
         '''
@@ -564,10 +565,12 @@ class Docked():
             remarks = {'structure': n+1, 'value': comm}
             self.entries.append({'internal': {'object': object, 'state': n+1},
                                  'remarks': remarks})
-        self.equalize_remarks()
 
         # load structures into PyMOL
         importing.load(filename, object=object, format='xyz', quiet=1)
+        importing.load_pdbstr
+
+        self.equalize_remarks()
 
     def export_data(self, filename, format=None) -> None:
         '''

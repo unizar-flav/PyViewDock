@@ -131,8 +131,9 @@ def run_gui() -> None:
 
     ##  TABLE  --------------------------------------------------------
     global headers
+    docked.remove_without_objects()
     available_headers = set(docked.remarks | {'object'})
-    headers = headers or [i for i in docked.headers if i in available_headers]
+    headers = headers if any(i in headers for i in available_headers) else [i for i in docked.headers if i in available_headers]
     dockings = list(set(cmd.get_names('objects', enabled_only=1)) & docked.objects)
 
     def draw_table(headers=headers, dockings=dockings):
@@ -303,7 +304,6 @@ def run_gui() -> None:
 
 
     ##  MAIN  ---------------------------------------------------------
-    docked.remove_without_objects()
     if len(dockings) > 1:
         headers.insert(0, 'object')
     draw_table()
