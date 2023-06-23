@@ -65,6 +65,9 @@ def load_pdbqt(filename, object='') -> None:
     docked.load_pdbqt(filename, object)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
+cmd.auto_arg[0]['load_pdbqt'] = [lambda: cmd.Shortcut(glob('*.pdbqt')), 'filename', ', ']
+cmd.auto_arg[1]['load_pdbqt'] = [cmd.object_sc, 'object', '']
+
 def load_dock4(filename, object='', mode=0) -> None:
     '''
     DESCRIPTION
@@ -123,7 +126,7 @@ def load_dock4(filename, object='', mode=0) -> None:
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
 cmd.auto_arg[0]['load_dock4'] = [lambda: cmd.Shortcut(glob('*.pdb') + glob('*.zip')), 'filename', ', ']
-cmd.auto_arg[1]['load_dock4'] = [cmd.object_sc, 'object', '']
+cmd.auto_arg[1]['load_dock4'] = [cmd.object_sc, 'object', ', ']
 
 def load_chimerax(filename) -> None:
     '''
