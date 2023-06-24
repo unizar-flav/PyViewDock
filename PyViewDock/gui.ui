@@ -58,9 +58,17 @@
        <string>Dockings</string>
       </property>
      </widget>
+     <widget class="QMenu" name="menuHelp">
+      <property name="title">
+       <string>Help</string>
+      </property>
+      <addaction name="buttonOnlineDocs"/>
+      <addaction name="buttonAbout"/>
+     </widget>
      <addaction name="menuFile"/>
      <addaction name="menuColumns"/>
      <addaction name="menuDockings"/>
+     <addaction name="menuHelp"/>
     </widget>
    </item>
    <item>
@@ -113,6 +121,16 @@
   <action name="buttonExportData">
    <property name="text">
     <string>Export Data...</string>
+   </property>
+  </action>
+  <action name="buttonOnlineDocs">
+   <property name="text">
+    <string>Online Documentation</string>
+   </property>
+  </action>
+  <action name="buttonAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

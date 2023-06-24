@@ -9,12 +9,13 @@
 """
 
 import os
+import webbrowser
 
 from pymol import cmd
 from pymol.Qt import QtCore, QtGui, QtWidgets
 from pymol.Qt.utils import loadUi
 
-from . import io, misc
+from . import __version__, io, misc
 from .docked import get_docked
 
 
@@ -29,7 +30,8 @@ def run_gui() -> None:
     dialog = QtWidgets.QDialog()
 
     # populate the Window from our *.ui file which was created with the Qt Designer
-    uifile = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'gui.ui')
+    pyviewdock_path = os.path.dirname(os.path.realpath(__file__))
+    uifile = os.path.join(pyviewdock_path, 'gui.ui')
     widget = loadUi(uifile, dialog)
 
     # hide question mark and add minimize button
@@ -46,6 +48,23 @@ def run_gui() -> None:
         msg.exec_()
 
 
+    ##  HELP  ---------------------------------------------------------
+    def online_docs():
+        '''Callback for the 'Online Documentation' button'''
+        webbrowser.open('https://github.com/unizar-flav/PyViewDock/wiki', new=2)
+
+    def about():
+        '''Callback for the 'About' button'''
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("About PyViewDock")
+        msg.setText("Docking viewer plug-in for PyMOL")
+        msg.setInformativeText(f"Version: {__version__}\n"+
+                               f"Location: {pyviewdock_path}\n"+
+                               f"Authors: Sergio Boneta Martínez\n"+
+                               f"License: GPLv3\n")
+        msg.exec_()
+
+
     ##  MENUBAR  ------------------------------------------------------
     # column sub-menus
     show_column_menu = widget.menuColumns.addMenu('Show')
@@ -57,9 +76,6 @@ def run_gui() -> None:
     # dockings sub-menus
     include_docking_menu = widget.menuDockings.addMenu('Include')
     exclude_docking_menu = widget.menuDockings.addMenu('Exclude')
-    # refresh button
-    # refresh_button = widget.menubar.addAction('buttonRefresh')
-    # refresh_button.setText("🗘")
 
 
     ##  I/O FILES  ----------------------------------------------------
@@ -297,7 +313,8 @@ def run_gui() -> None:
     widget.buttonClearAll.triggered.connect(clear_all)
     toggle_columns_button.triggered.connect(toggle_all_headers)
     toggle_objects_button.triggered.connect(toggle_objects)
-    # refresh_button.triggered.connect(refresh)
+    widget.buttonOnlineDocs.triggered.connect(online_docs)
+    widget.buttonAbout.triggered.connect(about)
     widget.tableDocked.itemSelectionChanged.connect(display_selected)
     widget.tableDocked.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
     widget.tableDocked.customContextMenuRequested.connect(right_click)
