@@ -17,6 +17,7 @@ import os
 import re
 from copy import deepcopy
 from glob import glob
+from tempfile import NamedTemporaryFile
 
 from pymol import cmd, importing, CmdException
 
@@ -354,7 +355,10 @@ class Docked():
         # load structures
         entries = []
         for n, (pose, remark) in enumerate(zip(poses, remarks)):
-            cmd.read_pdbstr('\n'.join(pose), object)
+            with NamedTemporaryFile('w', delete=True) as f:
+                f.write('\n'.join(pose))
+                f.flush()
+                importing.load(f.name, object, format='pdbqt')
             cmd.show_as('sticks', object)
             entries.append({'internal': {'object': object, 'state': n + 1}, 'remarks': remark})
 
@@ -527,7 +531,7 @@ class Docked():
 
         # remove atoms of receptor from ligand
         cmd.remove(f"{lig_obj} in {rec_obj}")
-        
+
         self.entries.extend(entries)
         self.equalize_remarks()
 
