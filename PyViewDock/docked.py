@@ -355,10 +355,13 @@ class Docked():
         # load structures
         entries = []
         for n, (pose, remark) in enumerate(zip(poses, remarks)):
-            with NamedTemporaryFile('w', delete=True) as f:
-                f.write('\n'.join(pose))
-                f.flush()
-                importing.load(f.name, object, format='pdbqt')
+            try:
+                with NamedTemporaryFile('w', delete=False) as f:
+                    f.write('\n'.join(pose))
+                    f.flush()
+                    importing.load(f.name, object, format='pdbqt')
+            finally:
+                os.unlink(f.name)
             cmd.show_as('sticks', object)
             entries.append({'internal': {'object': object, 'state': n + 1}, 'remarks': remark})
 
