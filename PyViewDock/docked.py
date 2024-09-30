@@ -97,7 +97,9 @@ class Docked():
 
     headers_default = {
         'AutoDock-Vina': ['MODEL', 'affinity', 'RMSD l.b.', 'RMSD u.b.', 'ITER + INTRA', 'INTER', 'INTRA', 'CONF_INDEPENDENT', 'UNBOUND', 'Flexibility Score'],
-        'Swiss-Dock': ['Cluster', 'ClusterRank', 'deltaG'],
+        'Swiss-Dock - EADock DSS': ['Cluster', 'ClusterRank', 'deltaG'],
+        'Swiss-Dock - Attracting Cavities': ['CLUSTER_NUM', 'CLUSTER_MEMBER', 'MEMBER_ENERGY', 'MEMBER_SCORE'],
+        'Swiss-Dock - AutoDock-Vina': ['MODEL', 'affinity', 'RMSD l.b.', 'RMSD u.b.', 'INTER + INTRA', 'INTER', 'INTRA', 'UNBOUND', 'Flexibility Score'],
         'pyDock': ['RANK', 'Total'],
         'generic': ['structure', 'value']
         }
@@ -372,7 +374,7 @@ class Docked():
         '''
         DESCRIPTION
 
-            Load a SwissDock's cluster of ligands from string list in PDB >Dock4 format
+            Load a SwissDock's cluster of ligands from string list in PDB Dock 4 format
 
         ARGUMENTS
 
@@ -392,7 +394,7 @@ class Docked():
         i = 0
         pdb = []
         entries = []
-        remark_re = re.compile(r'(?i)^REMARK\b\s+(\w+)\s*:\s*(-?\d+\.?\d*)')
+        remark_re = re.compile(r'^REMARK\b\s+([_\w-]+)\s*:\s*(.+)$')
         while i < len(cluster):
 
             pdb_keyword = cluster[i].split()[0].upper()
@@ -404,7 +406,15 @@ class Docked():
                 while remark_re.match(cluster[i]):
                     match = remark_re.match(cluster[i])
                     key = str(match.group(1))
-                    value = float(match.group(2)) if key not in ('Cluster', 'ClusterRank') else int(match.group(2))
+                    # convert to int/float/str
+                    value = match.group(2)
+                    if value.isdigit():
+                        value = int(value)
+                    else:
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            value = str(value)
                     remarks[key] = value
                     i += 1
 

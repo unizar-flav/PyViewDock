@@ -88,14 +88,14 @@ def run_gui() -> None:
         '''Callback for the 'Open' button'''
         supported_formats = {
             'PDBQT (*.pdbqt)': io.load_pdbqt,
-            'PDB Dock >4 (*.pdb; *.zip)': io.load_dock4,
+            'PDB Dock 4 (*.pdb; *.dock4)': io.load_dock4,
             'ChimeraX (*.chimerax)': io.load_chimerax,
             'pyDock (*.ene; *.eneRST)': io.load_pydock,
             'XYZ (*.xyz)': io.load_xyz,
             'All Files(*)': None}
         default_suffix_format = {
             'pdbqt': 'PDBQT (*.pdbqt)',
-            'pdb': 'PDB Dock >4 (*.pdb)',
+            'pdb': 'PDB Dock 4 (*.pdb)',
             'chimerax': 'ChimeraX (*.chimerax)',
             'ene': 'pyDock (*.ene; *.eneRST)',
             'enerst': 'pyDock (*.ene; *.eneRST)',

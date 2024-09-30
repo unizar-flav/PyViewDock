@@ -16,7 +16,6 @@
 import os
 import re
 import xml.etree.ElementTree as ET
-import zipfile
 from glob import glob
 from textwrap import dedent
 from urllib.error import HTTPError
@@ -82,7 +81,6 @@ def load_dock4(filename, object='', mode=0) -> None:
     ARGUMENTS
 
         filename = string: cluster of structures in PDB format
-                           or zip file containing a .dock4.pdb file
 
         object = string: name to be include the new object
                          if absent, taken from filename
@@ -95,8 +93,8 @@ def load_dock4(filename, object='', mode=0) -> None:
     EXAMPLES
 
         load_dock4  cluster.dock4.pdb
-        load_dock4  cluster.dock4.zip, clusters
-        load_dock4  cluster.dock4.zip, clusters, 2
+        load_dock4  cluster.dock4, clusters
+        load_dock4  cluster.dock4, clusters, 2
 
     SEE ALSO
 
@@ -108,12 +106,6 @@ def load_dock4(filename, object='', mode=0) -> None:
     # check file and read as list of strings
     if not os.path.isfile(filename):
         raise CmdException(f"File \"{filename}\" not found.", "PyViewDock")
-    elif zipfile.is_zipfile(filename):
-        with zipfile.ZipFile(filename, 'r') as z:
-            dock4_files = [i for i in z.namelist() if i.endswith('.dock4.pdb')]
-            if not dock4_files:
-                raise CmdException(f"No .dock4.pdb file found in \"{filename}\".", "PyViewDock")
-            cluster = z.read(dock4_files[0]).decode('utf-8').split('\n')
     else:
         with open(filename, "rt") as f:
             cluster = f.readlines()
@@ -125,7 +117,7 @@ def load_dock4(filename, object='', mode=0) -> None:
     docked.load_dock4(cluster, object, mode)
     print(f" PyViewDock: \"{filename}\" loaded as \"{object}\"")
 
-cmd.auto_arg[0]['load_dock4'] = [lambda: cmd.Shortcut(glob('*.pdb') + glob('*.zip')), 'filename', ', ']
+cmd.auto_arg[0]['load_dock4'] = [lambda: cmd.Shortcut(glob('*.pdb') + glob('*.dock4')), 'filename', ', ']
 cmd.auto_arg[1]['load_dock4'] = [cmd.object_sc, 'object', ', ']
 
 def load_chimerax(filename) -> None:
@@ -323,30 +315,36 @@ def load_ext(filename, object='', state=0, format='', finish=1,
         This is a wrapper by PyViewDock to the original "load" function
         with extended funtionality for docking file formats.
 
+        .pdbqt
+            PDBQT file with docking information from AutoDock Vina
+        .dock4
+            PDB Dock 4 format from SwissDock
         .chimerax
             XML file with URL of target and ligands cluster from SwissDock
         .ene / .eneRST
             energy table with reference numbers of structures from pyDock
-        .pdbqt
-            PDBQT file with docking information from AutoDock Vina
     '''
 
     if not format:
         file_dot_separated = os.path.basename(filename).rpartition('.')
-        name   = "".join(file_dot_separated[:-2])
+        object = object or "".join(file_dot_separated[:-2])
         format = file_dot_separated[-1]
 
     # Chimera X
     if format.lower() == "chimerax":
         load_chimerax(filename)
 
+    # Dock 4
+    elif format.lower() == "dock4":
+        load_dock4(filename, object)
+
     # pyDock
     elif format.lower() in ("ene", "enerst"):
-        load_pydock(filename, name)
+        load_pydock(filename, object)
 
     # PDBQT
     elif format.lower() == "pdbqt":
-        load_pdbqt(filename, name)
+        load_pdbqt(filename, object)
 
     # original load function
     else:

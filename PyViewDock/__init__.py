@@ -9,14 +9,17 @@
 
 
   Enriched built-in 'load' function (also as drag-and-drop):
-      * .pdbqt  -  from AutoDock Vina
-      * .chimerax  -  from SwissDock
+      * .pdbqt  -  from AutoDock Vina (and SwissDock's AutoDock Vina)
+      * .dock4  -  from SwissDock's Attracting Cavities
+      * .chimerax  -  from SwissDock (legacy)
       * .ene/.eneRST  -  from pyDock
+
+  Additional command line functions: 
 
   - Load PDBQT file (AutoDock Vina):
         load_pdbqt  filename [, object ]
 
-  - Load cluster of docking ligands in Dock 4+ PDB format:
+  - Load cluster of docking ligands in Dock 4 PDB format:
         load_dock4  filename [, object [, mode ]]
 
   - Load SwissDock's .chimerax file:
@@ -37,11 +40,11 @@
 
   github.com/unizar-flav/PyViewDock
   by Sergio Boneta Martinez
-  GPLv3 2021-2023
+  GPLv3 2021-2024
 
 """
 
-__version__ = '0.3.4'
+__version__ = '0.4.0'
 
 from pymol import cmd, plugins
 
