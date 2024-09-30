@@ -1,8 +1,8 @@
 # PyViewDock
 
 
-[![PyMOL](https://img.shields.io/badge/PyMOL-2.x-green.svg)](https://pymolwiki.org)
-[![python](https://img.shields.io/badge/python-3.6+-red.svg)](https://www.python.org/)
+[![PyMOL](https://img.shields.io/badge/PyMOL-2.x\/3.x-green.svg)](https://pymolwiki.org)
+[![python](https://img.shields.io/badge/python-3.8+-red.svg)](https://www.python.org/)
 
 A [PyMOL](https://pymolwiki.org) plug-in that adds capabilities to this molecular viewer to manage result files from docking.  
 Obviously inspired from the original [Chimera's View-Dock](https://www.cgl.ucsf.edu/chimera/docs/ContributedSoftware/viewdock/framevd.html)
@@ -14,20 +14,21 @@ Obviously inspired from the original [Chimera's View-Dock](https://www.cgl.ucsf.
 ### Supported formats with software/server results
 
 * [AutoDock Vina](https://autodock-vina.readthedocs.io) \
-    .pdbqt
-* [Swiss-Dock](http://www.swissdock.ch/) \
-    .chimerax / .pdb in Dock 4+ format
-* [pyDock](https://life.bsc.es/pid/pydock/) \
-    .ene / .eneRST and corresponding .pdb
+    `.pdbqt`
+* [Swiss-Dock](https://www.swissdock.ch) \
+    `.dock4` / `.pdbqt` (Attracting Cavities / AutoDock Vina) \
+    .chimerax / .pdb in Dock 4+ format (legacy EADock DSS)
+* [pyDock](https://life.bsc.es/pid/pydock) \
+    `.ene` / `.eneRST` and corresponding .pdb
 * generic xyz \
-    .xyz
+    `.xyz`
 
 
 ### Requirements
 
-PyMOL 2.x with PyQt5
+PyMOL 2.x/3.x with PyQt5
 
-For [incentive PyMOL](https://pymol.org/2/) PyQt5 is already included.  
+For [incentive PyMOL](https://pymol.org/) PyQt5 is already included.  
 In the case of [open-source PyMOL](https://github.com/schrodinger/pymol-open-source), it is advised ensure to have installed PyQt5: `python -m pip install pyqt5 --user`
 
 
@@ -44,7 +45,9 @@ https://github.com/unizar-flav/PyViewDock/releases/latest/download/PyViewDock.zi
 It is recomended to restart PyMOL after installation, although it should not be necessary.
 
 
-### Usage
+### Basic Usage
+
+A more detailed guide and usage examples can be found in the [wiki page](https://github.com/unizar-flav/PyViewDock/wiki).
 
 #### GUI
 
@@ -57,6 +60,7 @@ A table will appear with information for every docking entry. It can be column-s
 
   - Enriched built-in `load` function (also as drag-and-drop):
       * .pdbqt
+      * .dock4
       * .chimerax
       * .ene/.eneRST
 
